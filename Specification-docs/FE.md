@@ -327,3 +327,4 @@ VITE_OLLAMA_MODEL_DISPLAY=LLaMA 3
 - JWT stored in memory (Pinia store) — not in localStorage. Refresh token stored as httpOnly cookie
 - All API calls go through the Axios interceptor which attaches the Bearer token and handles 401 refresh flows
 - All created components and styling should follow the instructions in the `branding.json` file
+- Ensure the entire UI is responsive and works on all devices and the entire UX, components, UI and sutle animations in the website are clean and beautiful and user-friendly and appealing and in line with the  `branding.json` file.
