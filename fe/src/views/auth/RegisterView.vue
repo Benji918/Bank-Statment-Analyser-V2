@@ -11,13 +11,19 @@ const uiStore = useUiStore()
 
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
 const fullName = ref('')
 const isSubmitting = ref(false)
 
 const handleRegister = async () => {
   if (isSubmitting.value) return
-  isSubmitting.value = true
+  
+  if (password.value !== confirmPassword.value) {
+    uiStore.showToast('Passwords do not match.', 'error')
+    return
+  }
 
+  isSubmitting.value = true
   try {
     await authStore.register({ 
       email: email.value, 
@@ -49,7 +55,7 @@ const handleRegister = async () => {
           <h2 class="text-3xl font-heading font-extrabold text-white tracking-tight">
             Create an account
           </h2>
-          <p class="text-gray-400 text-sm mt-2 font-body">Join Bank Analyser and gain intelligence</p>
+          <p class="text-gray-400 text-sm mt-2 font-body">Join IntelliBank and gain intelligence</p>
         </div>
 
         <form class="space-y-5" @submit.prevent="handleRegister">
@@ -78,18 +84,33 @@ const handleRegister = async () => {
               placeholder="name@company.com"
             >
           </div>
-          <div>
-            <label for="password" class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Password</label>
-            <input 
-              id="password" 
-              name="password" 
-              type="password" 
-              autocomplete="new-password" 
-              required 
-              v-model="password" 
-              class="block w-full px-4 py-3 bg-[#111111] border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0099FF]/50 focus:border-[#0099FF] transition-all duration-200" 
-              placeholder="••••••••"
-            >
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="password" class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Password</label>
+              <input 
+                id="password" 
+                name="password" 
+                type="password" 
+                autocomplete="new-password" 
+                required 
+                v-model="password" 
+                class="block w-full px-4 py-3 bg-[#111111] border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0099FF]/50 focus:border-[#0099FF] transition-all duration-200" 
+                placeholder="••••••••"
+              >
+            </div>
+            <div>
+              <label for="confirm-password" class="block text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Confirm</label>
+              <input 
+                id="confirm-password" 
+                name="confirm-password" 
+                type="password" 
+                autocomplete="new-password" 
+                required 
+                v-model="confirmPassword" 
+                class="block w-full px-4 py-3 bg-[#111111] border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0099FF]/50 focus:border-[#0099FF] transition-all duration-200" 
+                placeholder="••••••••"
+              >
+            </div>
           </div>
 
           <div class="pt-3">
