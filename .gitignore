@@ -1,0 +1,13 @@
+be/venv
+.env
+fe/node_modules
+be/app/__pycache__
+be/app/api/__pycache__
+be/app/api/v1/__pycache__
+be/app/core/__pycache__
+be/app/db/__pycache__
+be/app/models/__pycache__
+be/app/schemas/__pycache__
+be/app/services/__pycache__
+be/app/users/__pycache__
+be/app/utils/__pycache__

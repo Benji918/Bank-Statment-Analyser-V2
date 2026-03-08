@@ -20,7 +20,7 @@ People want intelligent analysis of their spending habits and financial health, 
 
 > **Full financial intelligence, zero raw data exposure.**
 
-The app uniquely shows users their redacted document *before* anything is processed, proving their sensitive information is protected. Combined with a locally-running LLM (Ollama), no personal financial data ever leaves the user's environment.
+The app uniquely shows users their redacted document *before* anything is processed, proving their sensitive information is protected. Combined with a cloud LLM (Ollama)
 
 ---
 
@@ -141,7 +141,7 @@ FASTAPI BACKEND
 │
 USER BROWSER
 │
-└─ 13. Frontend polls for job completion
+└─ 13. Frontend uses websockets to show job progress and for job completion
     └─ Loads insight JSON and renders charts/dashboard
 ```
 
@@ -195,6 +195,5 @@ The following PII types are targeted for detection and redaction:
 ## Project Constraints
 
 - Ollama cloud based API is being used
-- The application is designed to be self-hosted; SaaS deployment is a Phase 3 consideration
 - The MVP supports single-user accounts on a single deployed instance; multi-tenant isolation is a Phase 2 concern
 - The redaction system does not guarantee 100% PII removal — users are informed of this and must confirm before submitting
