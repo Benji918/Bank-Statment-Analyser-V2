@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 @celery_app.task(bind=True, name="analysis_tasks.run_analysis")
-def run_analysis(self, statement_id: str, job_id: str, ollama_model: str = "llama3") -> dict:
+def run_analysis(self, statement_id: str, job_id: str, ollama_model: str = None) -> dict:
     """
     Async Celery task: parse redacted PDF text, send to Ollama, and store insights.
     """
@@ -48,7 +48,7 @@ def run_analysis(self, statement_id: str, job_id: str, ollama_model: str = "llam
                 pages = parse_pdf(file_bytes)
                 full_text = " ".join(p.full_text for p in pages)
 
-                insight_data = await analyse_statement(full_text, model=ollama_model)
+                insight_data = await analyse_statement(full_text, model_name=ollama_model)
 
                 job.status = "done"
                 job.completed_at = datetime.datetime.utcnow()

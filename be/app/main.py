@@ -22,6 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 # Register all API routers
 from app.api.v1 import auth, statements, redaction, analysis, insights, exports, tags
 

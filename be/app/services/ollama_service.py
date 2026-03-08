@@ -25,36 +25,42 @@ The JSON must match this schema exactly:
 }"""
 
 
-async def analyse_statement(redacted_text: str, model: Optional[str] = None) -> InsightData:
+async def analyse_statement(redacted_text: str, model_name: Optional[str] = None) -> InsightData:
     """
     Send redacted statement text to Ollama and parse the structured JSON response.
     Retries up to 3 times on malformed JSON.
     """
-    import ollama
+    from ollama import AsyncClient
+    import httpx
 
-    model = model or settings.OLLAMA_MODEL
+    model = model_name or settings.OLLAMA_MODEL
     last_error: Optional[Exception] = None
+    
+    headers = {}
+    if settings.OLLAMA_API_KEY:
+        headers["Authorization"] = f"Bearer {settings.OLLAMA_API_KEY}"
+        
+    client = AsyncClient(host=settings.OLLAMA_BASE_URL, headers=headers)
 
-    for attempt in range(1, 4):
-        try:
-            response = ollama.chat(
-                model=model,
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": f"Bank Statement:\n\n{redacted_text}"},
-                ],
-            )
-            raw_content: str = response["message"]["content"]
-            # Strip markdown code fences if present
-            clean = raw_content.strip()
-            if clean.startswith("```"):
-                clean = clean.split("```")[1]
-                if clean.startswith("json"):
-                    clean = clean[4:]
-            parsed = json.loads(clean)
-            return InsightData(**parsed)
-        except (json.JSONDecodeError, KeyError, TypeError) as e:
-            logger.warning(f"Attempt {attempt}: Failed to parse Ollama JSON response: {e}")
-            last_error = e
+    try:
+        response = await client.chat(
+            model=model,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": f"Bank Statement:\n\n{redacted_text}"},
+            ],
+        )
+        raw_content: str = response["message"]["content"]
+        # Strip markdown code fences if present
+        clean = raw_content.strip()
+        if clean.startswith("```"):
+            clean = clean.split("```")[1]
+            if clean.startswith("json"):
+                clean = clean[4:]
+        parsed = json.loads(clean)
+        return InsightData(**parsed)
+    except (json.JSONDecodeError, KeyError, TypeError) as e:
+        logger.warning(f"Failed to parse Ollama JSON response: {e}")
+        last_error = e
 
     raise ValueError(f"Ollama failed to return valid JSON after 3 attempts: {last_error}")

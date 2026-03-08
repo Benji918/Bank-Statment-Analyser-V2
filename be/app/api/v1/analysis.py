@@ -12,6 +12,7 @@ from app.models.statement import Statement
 from app.models.analysis import AnalysisJob
 from app.schemas.analysis import AnalysisRequest, AnalysisJobRead, AnalysisResult
 from app.core.exceptions import NotFoundException, ForbiddenException
+from app.config import settings
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -34,7 +35,7 @@ async def run_analysis(
 
     job = AnalysisJob(
         statement_id=statement_id,
-        ollama_model=request.ollama_model,
+        ollama_model=settings.OLLAMA_MODEL,
         prompt_version=request.prompt_version,
         status="pending",
     )
@@ -44,7 +45,7 @@ async def run_analysis(
     await db.refresh(job)
 
     from app.tasks.analysis_tasks import run_analysis as celery_analysis
-    celery_analysis.delay(str(statement_id), str(job.id), request.ollama_model)
+    celery_analysis.delay(str(statement_id), str(job.id), settings.OLLAMA_MODEL)
 
     return AnalysisResult(job_id=job.id, status=job.status)
 

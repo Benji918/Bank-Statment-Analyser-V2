@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     
     # LLM
     OLLAMA_MODEL: str = os.getenv("OLLAMA_MODEL")
+    OLLAMA_BASE_URL: str = os.getenv("OLLAMA_BASE_URL")
+    OLLAMA_API_KEY: str | None = os.getenv("OLLAMA_API_KEY")
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 

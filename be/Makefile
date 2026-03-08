@@ -44,10 +44,10 @@ install: install-be install-fe ## Install ALL dependencies (backend + frontend)
 
 install-be: ## Install backend Python dependencies via uv
 	@echo "$(CYAN)→ Installing backend dependencies…$(RESET)"
-	cd $(BE_DIR) && uv venv --python python3.11
-	cd $(BE_DIR) && uv pip install -e ".[dev]"
+	uv venv --python python3.11
+	uv pip install -e ".[dev]"
 	@echo "$(CYAN)→ Downloading spaCy model for Presidio…$(RESET)"
-	cd $(BE_DIR) && venv/bin/python -m spacy download en_core_web_lg || true
+	venv/bin/python -m spacy download en_core_web_lg || true
 
 install-fe: ## Install frontend npm dependencies
 	@echo "$(CYAN)→ Installing frontend dependencies…$(RESET)"
@@ -61,7 +61,7 @@ dev: ## Start both backend and frontend dev servers (requires two terminals)
 
 dev-be: ## Start the FastAPI backend (hot-reload)
 	@echo "$(CYAN)→ Starting FastAPI backend on http://localhost:8000$(RESET)"
-	cd $(BE_DIR) && venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 dev-fe: ## Start the Vite frontend dev server
 	@echo "$(CYAN)→ Starting Vue frontend on http://localhost:5173$(RESET)"
@@ -81,7 +81,7 @@ test: test-be test-fe ## Run ALL tests (backend + frontend)
 
 test-be: ## Run backend tests with pytest
 	@echo "$(CYAN)→ Running backend tests…$(RESET)"
-	cd $(BE_DIR) && venv/bin/pytest tests/ -v --tb=short
+	venv/bin/pytest tests/ -v --tb=short
 
 test-fe: ## Run frontend tests with Vitest
 	@echo "$(CYAN)→ Running frontend tests…$(RESET)"
@@ -98,8 +98,8 @@ lint: lint-be lint-fe ## Lint ALL code (backend + frontend)
 
 lint-be: ## Lint backend Python code with ruff
 	@echo "$(CYAN)→ Linting backend…$(RESET)"
-	cd $(BE_DIR) && venv/bin/ruff check app/ || true
-	cd $(BE_DIR) && venv/bin/ruff format --check app/ || true
+	venv/bin/ruff check app/ || true
+	venv/bin/ruff format --check app/ || true
 
 lint-fe: ## Type-check and lint frontend TypeScript/Vue
 	@echo "$(CYAN)→ Type-checking frontend…$(RESET)"
@@ -107,40 +107,40 @@ lint-fe: ## Type-check and lint frontend TypeScript/Vue
 
 format-be: ## Auto-format backend Python code with ruff
 	@echo "$(CYAN)→ Formatting backend…$(RESET)"
-	cd $(BE_DIR) && venv/bin/ruff format app/
+	venv/bin/ruff format app/
 
 # =============================================================================
 # DATABASE MIGRATIONS (Alembic)
 # =============================================================================
 migrate: ## Show current Alembic migration status
 	@echo "$(CYAN)→ Alembic current revision:$(RESET)"
-	cd $(BE_DIR) && venv/bin/alembic current
+	venv/bin/alembic current
 
 migrate-make: ## Generate a new migration (set MSG="your message")
 	@echo "$(CYAN)→ Generating migration: $(MSG)$(RESET)"
-	cd $(BE_DIR) && venv/bin/alembic revision --autogenerate -m "$(MSG)"
+	venv/bin/alembic revision --autogenerate -m "$(MSG)"
 
 migrate-upgrade: ## Apply all pending migrations (upgrade to head)
 	@echo "$(CYAN)→ Applying migrations to head…$(RESET)"
-	cd $(BE_DIR) && venv/bin/alembic upgrade head
+	venv/bin/alembic upgrade head
 
 migrate-downgrade: ## Roll back one migration
 	@echo "$(CYAN)→ Rolling back one migration…$(RESET)"
-	cd $(BE_DIR) && venv/bin/alembic downgrade -1
+	venv/bin/alembic downgrade -1
 
 migrate-history: ## Show full migration history
-	cd $(BE_DIR) && venv/bin/alembic history --verbose
+	venv/bin/alembic history --verbose
 
 # =============================================================================
 # CELERY WORKERS
 # =============================================================================
 celery: ## Start Celery worker (handles redaction + analysis tasks)
 	@echo "$(CYAN)→ Starting Celery worker…$(RESET)"
-	cd $(BE_DIR) && venv/bin/celery -A app.tasks.celery_app worker --loglevel=info --concurrency=2
+	venv/bin/celery -A app.tasks.celery_app worker --loglevel=info --concurrency=2
 
 celery-beat: ## Start Celery beat scheduler
 	@echo "$(CYAN)→ Starting Celery beat…$(RESET)"
-	cd $(BE_DIR) && venv/bin/celery -A app.tasks.celery_app beat --loglevel=info
+	venv/bin/celery -A app.tasks.celery_app beat --loglevel=info
 
 # =============================================================================
 # DOCKER

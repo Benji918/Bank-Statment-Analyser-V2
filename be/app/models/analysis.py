@@ -11,7 +11,7 @@ class AnalysisJob(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     statement_id = Column(UUID(as_uuid=True), ForeignKey("statements.id", ondelete="CASCADE"), nullable=False)
-    ollama_model = Column(String(100), default="llama3")
+    ollama_model = Column(String(100), nullable=True)
     prompt_version = Column(String(20), nullable=True)
     status = Column(String(50), default="pending")  # pending|running|done|failed
     started_at = Column(DateTime, nullable=True)
