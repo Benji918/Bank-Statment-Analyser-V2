@@ -1,20 +1,57 @@
 <script setup lang="ts">
-// A sleek minimalistic logo for Bank Analyser
-// Represents a document (bank statement) intersecting with a spark/star (AI insights) and a shield/lock element (privacy)
-// We'll keep it simple: A folded document shape with an 'AI Sparkle' near it.
+/**
+ * IntelliBank Logo - "The Secure Insight Prism"
+ * 
+ * Design Philosophy:
+ * - Geometric Hexagon: Stability, Security, and Encryption.
+ * - Layered Segments: The process of deconstructing bank statements into structured data.
+ * - Focal Point: LLaMA 3 AI engine extracting value.
+ * - Modern Blue/Cyan Palette: Trust and high-tech efficiency.
+ */
 </script>
 
 <template>
   <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    viewBox="0 0 16 24" 
-    class="fill-current transition-all"
+    viewBox="0 0 32 32" 
+    xmlns="http://www.w3.org/2000/svg"
+    class="fill-current transition-all duration-500 group-hover:scale-110"
     width="100%"
     height="100%"
   >
+    <!-- Outer Hexagonal Frame (Subtle transparency) -->
     <path 
-      d="M 16 0 L 16 8 L 8 8 L 0 0 Z M 0 8 L 8 8 L 16 16 L 8 16 L 8 24 L 0 16 Z" 
-      fill="currentColor"
+      d="M16 2L29.8564 10V22L16 30L2.14359 22V10L16 2Z" 
+      fill="currentColor" 
+      fill-opacity="0.05"
+      stroke="currentColor" 
+      stroke-width="1.5"
+      stroke-linejoin="round"
+      class="text-gray-400"
     />
+
+    <!-- The "Vault" Core - Privacy Redaction Bars -->
+    <rect x="8" y="11" width="16" height="3" rx="1.5" fill="#0000EE" />
+    <rect x="8" y="15.5" width="12" height="3" rx="1.5" fill="#0099FF" fill-opacity="0.8" />
+    <rect x="8" y="20" width="8" height="3" rx="1.5" fill="#0099FF" fill-opacity="0.6" />
+
+    <!-- The Intelligence Spark (Right-aligned to show output) -->
+    <circle cx="25" cy="19" r="4.5" fill="url(#sparkGradient)" class="drop-shadow-[0_0_8px_rgba(0,153,255,0.6)]" />
+    <path 
+      d="M25 15C25 15 25.5 18 29 18C25.5 18 25 21 25 21C25 21 24.5 18 21 18C24.5 18 25 15 25 15Z" 
+      fill="white" 
+    />
+
+    <defs>
+      <linearGradient id="sparkGradient" x1="21.5" y1="15.5" x2="28.5" y2="22.5" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#0099FF" />
+        <stop offset="1" stop-color="#0000EE" />
+      </linearGradient>
+    </defs>
   </svg>
 </template>
+
+<style scoped>
+.drop-shadow-lg {
+  filter: drop-shadow(0 0 8px rgba(0, 153, 255, 0.4));
+}
+</style>
