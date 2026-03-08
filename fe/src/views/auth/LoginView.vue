@@ -99,12 +99,6 @@ const handleLogin = async () => {
           </RouterLink>
         </div>
       </div>
-      
-      <!-- Footer links -->
-      <div class="mt-8 flex justify-center gap-6 text-xs text-gray-600">
-        <a href="#" class="hover:text-gray-400 transition-colors">Privacy Policy</a>
-        <a href="#" class="hover:text-gray-400 transition-colors">Terms of Service</a>
-      </div>
     </div>
   </div>
 </template>
