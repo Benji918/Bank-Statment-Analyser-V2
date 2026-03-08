@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Statement, StatementUpdate } from '@/types/statement.types'
 import { statementsService } from '@/services/statements.service'
+import { analysisService } from '@/services/analysis.service'
+import { useUiStore } from '@/stores/ui.store'
 
 export const useStatementsStore = defineStore('statements', () => {
     const statements = ref<Statement[]>([])
@@ -40,8 +42,26 @@ export const useStatementsStore = defineStore('statements', () => {
     }
 
     async function deleteStatement(id: string): Promise<void> {
-        await statementsService.delete(id)
-        statements.value = statements.value.filter((s) => s.id !== id)
+        try {
+            await statementsService.delete(id)
+            statements.value = statements.value.filter((s) => s.id !== id)
+            useUiStore().showToast('Statement deleted', 'success')
+        } catch (e: any) {
+            useUiStore().showToast(e?.response?.data?.detail || 'Failed to delete statement', 'error')
+        }
+    }
+
+    async function retryAnalysis(id: string, model: string = 'llama3'): Promise<void> {
+        const stmt = statements.value.find(s => s.id === id)
+        if (stmt) stmt.status = 'analysing'
+
+        try {
+            await analysisService.run(id, model)
+            useUiStore().showToast('Analysis restarted', 'success')
+        } catch (e: any) {
+            if (stmt) stmt.status = 'error'
+            useUiStore().showToast('Failed to restart analysis', 'error')
+        }
     }
 
     return {
@@ -53,5 +73,6 @@ export const useStatementsStore = defineStore('statements', () => {
         uploadStatement,
         updateTags,
         deleteStatement,
+        retryAnalysis,
     }
 })

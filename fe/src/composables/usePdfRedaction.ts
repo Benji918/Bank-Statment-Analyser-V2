@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import type { RedactionResult, DetectedEntity } from '@/types/redaction.types'
 import { buildCharMap, charOffsetToPdfCoords } from '@/utils/pdfCoordinates'
+import { detectPii } from '@/utils/piiDetector'
 
 import * as pdfjsLib from 'pdfjs-dist'
 import { PDFDocument, rgb } from 'pdf-lib'
@@ -23,11 +24,13 @@ export function usePdfRedaction() {
     const isProcessing = ref(false)
     const progress = ref(0)
     const error = ref<string | null>(null)
+    const detectedEntities = ref<DetectedEntity[]>([])
 
     async function redactPdf(file: File): Promise<RedactionResult> {
         isProcessing.value = true
         error.value = null
         progress.value = 0
+        detectedEntities.value = []
 
         try {
             const arrayBuffer = await file.arrayBuffer()
@@ -42,6 +45,7 @@ export function usePdfRedaction() {
                 viewport: { width: number; height: number }
             }> = []
 
+            // Phase 1: Extract text from all pages and detect PII
             for (let i = 1; i <= totalPages; i++) {
                 const page = await pdf.getPage(i)
                 const textContent = await page.getTextContent()
@@ -49,15 +53,16 @@ export function usePdfRedaction() {
 
                 const { fullText, charMap } = buildCharMap(textContent as any)
 
-                // Client-side PII detection via @openredaction/openredaction
-                let entities: DetectedEntity[] = []
-                try {
-                    const { OpenRedaction } = await import('@openredaction/openredaction')
-                    const detected = await OpenRedaction.detect(fullText)
-                    entities = detected.map((e: any) => ({ ...e, page: i }))
-                } catch {
-                    // openredaction may not be available or may not detect anything
-                }
+                // Run our built-in PII detection engine
+                const piiResults = detectPii(fullText)
+                const entities: DetectedEntity[] = piiResults.map((e) => ({
+                    entity_type: e.entity_type,
+                    start: e.start,
+                    end: e.end,
+                    score: e.score,
+                    text: e.text,
+                    page: i,
+                }))
 
                 allEntities.push(...entities)
                 pageTextMaps.push({ page: i, fullText, charMap, viewport })
@@ -65,24 +70,33 @@ export function usePdfRedaction() {
                 progress.value = Math.round((i / totalPages) * 60)
             }
 
-            // Draw redaction rectangles using pdf-lib
+            // Store detected entities for the UI to display
+            detectedEntities.value = [...allEntities]
+
+            // Phase 2: Draw redaction rectangles using pdf-lib
             const pdfDoc = await PDFDocument.load(arrayBuffer)
 
             for (const entity of allEntities) {
                 const pageData = pageTextMaps[entity.page! - 1]
                 if (!pageData) continue
+
                 const bbox = charOffsetToPdfCoords(
                     entity.start,
                     entity.end,
                     pageData.charMap,
                     pageData.viewport
                 )
+
+                // Skip zero-size boxes
+                if (bbox.width <= 0 || bbox.height <= 0) continue
+
                 const pdfPage = pdfDoc.getPage(entity.page! - 1)
+                // pdf-lib uses bottom-left origin; our coords are already adjusted
                 pdfPage.drawRectangle({
                     x: bbox.x,
                     y: bbox.y,
                     width: bbox.width,
-                    height: bbox.height,
+                    height: bbox.height + 4, // slight padding for better coverage
                     color: rgb(0, 0, 0),
                 })
             }
@@ -103,5 +117,5 @@ export function usePdfRedaction() {
         }
     }
 
-    return { redactPdf, isProcessing, progress, error }
+    return { redactPdf, isProcessing, progress, error, detectedEntities }
 }
