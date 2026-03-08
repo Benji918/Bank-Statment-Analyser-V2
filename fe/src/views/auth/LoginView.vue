@@ -11,6 +11,7 @@ const uiStore = useUiStore()
 
 const email = ref('')
 const password = ref('')
+const showPassword = ref(false)
 const isSubmitting = ref(false)
 
 const handleLogin = async () => {
@@ -67,16 +68,26 @@ const handleLogin = async () => {
                 <label for="password" class="block text-xs font-medium text-gray-400 uppercase tracking-wider">Password</label>
                 <a href="#" class="text-xs text-[#0099FF] hover:text-[#0000EE] transition-colors">Forgot password?</a>
               </div>
-              <input 
-                id="password" 
-                name="password" 
-                type="password" 
-                autocomplete="current-password" 
-                required 
-                v-model="password" 
-                class="block w-full px-4 py-3 bg-[#111111] border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0099FF]/50 focus:border-[#0099FF] transition-all duration-200" 
-                placeholder="••••••••"
-              >
+              <div class="relative">
+                <input 
+                  id="password" 
+                  name="password" 
+                  :type="showPassword ? 'text' : 'password'" 
+                  autocomplete="current-password" 
+                  required 
+                  v-model="password" 
+                  class="block w-full px-4 py-3 bg-[#111111] border border-gray-700 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-[#0099FF]/50 focus:border-[#0099FF] transition-all duration-200" 
+                  placeholder="••••••••"
+                >
+                <button 
+                  type="button" 
+                  @click="showPassword = !showPassword"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                >
+                  <svg v-if="!showPassword" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88 2 2"/><path d="M17.36 18.532A10.435 10.435 0 0 1 12 19c-7 0-10-7-10-7a13.16 13.16 0 0 1 2.174-2.906"/><path d="M4.22 4.22 22 22"/><path d="M2 12s3-7 10-7a9.45 9.45 0 0 1 5.074 1.477"/><path d="M22 12s-3 7-10 7a9.68 9.68 0 0 1-1.353-.095"/><path d="M15 12a3 3 0 0 0-5.46-1.74"/><path d="M9 12a3 3 0 0 0 4.1 2.76"/></svg>
+                </button>
+              </div>
             </div>
           </div>
 

@@ -265,7 +265,7 @@ const cashflowOption = {
         <button @click="router.push('/register')" class="bg-white text-[#0000EE] px-12 py-5 rounded-full font-heading font-black text-xl hover:scale-110 active:scale-95 transition-all shadow-2xl">
           Get Started Now
         </button>
-        <div class="mt-8 text-xs text-gray-500 uppercase tracking-widest font-bold">Privacy Guaranteed by Local Redaction</div>
+        <div class="mt-8 text-xs text-gray-500 uppercase tracking-widest font-bold">Privacy Guaranteed by S-tier Redaction</div>
       </div>
     </section>
 
