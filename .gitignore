@@ -12,3 +12,4 @@ be/app/services/__pycache__
 be/app/users/__pycache__
 be/app/utils/__pycache__
 be/app/migrations/__pycache__
+be/app/migrations/versions/__pycache__
