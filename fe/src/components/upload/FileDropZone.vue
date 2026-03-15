@@ -30,6 +30,7 @@ function onFileChange(e: Event) {
 function openFilePicker() {
   fileInput.value?.click()
 }
+const maxUploadSize = import.meta.env.VITE_MAX_UPLOAD_SIZE_MB ?? 20
 </script>
 
 <template>
@@ -47,7 +48,7 @@ function openFilePicker() {
   >
     <div class="text-5xl mb-4">📄</div>
     <p class="text-white font-heading font-semibold text-lg mb-1">Drop your PDF here</p>
-    <p class="text-gray-400 text-sm">or click to browse — max {{ $env?.MAX_UPLOAD_SIZE_MB ?? 20 }}MB</p>
+    <p class="text-gray-400 text-sm">or click to browse — max {{ maxUploadSize }}MB</p>
     <input ref="fileInput" type="file" accept="application/pdf" class="hidden" @change="onFileChange" />
   </div>
 </template>

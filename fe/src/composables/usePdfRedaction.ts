@@ -1,10 +1,10 @@
 import { ref } from 'vue'
 import type { RedactionResult, DetectedEntity } from '@/types/redaction.types'
-import { buildCharMap, charOffsetToPdfCoords } from '@/utils/pdfCoordinates'
+import { buildCharMap } from '@/utils/pdfCoordinates'
 import { detectPii } from '@/utils/piiDetector'
+import { pdfRestService, type RedactionObject } from '@/services/pdfrest.service'
 
 import * as pdfjsLib from 'pdfjs-dist'
-import { PDFDocument, rgb } from 'pdf-lib'
 
 // Configure pdfjs worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
@@ -73,41 +73,35 @@ export function usePdfRedaction() {
             // Store detected entities for the UI to display
             detectedEntities.value = [...allEntities]
 
-            // Phase 2: Draw redaction rectangles using pdf-lib
-            const pdfDoc = await PDFDocument.load(arrayBuffer)
+            progress.value = 80;
 
-            for (const entity of allEntities) {
-                const pageData = pageTextMaps[entity.page! - 1]
-                if (!pageData) continue
+            // Phase 2: Call PDFrest for preview
+            const IGNORED_WORDS = new Set([
+                'transfer', 'pos', 'cash', 'cas', 'debit', 'credit', 'merchant', 'merchat', 'airtime', 
+                'commission', 'vat', 'tax', 'total', 'amount', 'balance', 'fee', 'charge', 'withdrawal', 'deposit', 'statement'
+            ]);
+            
+            const uniqueTexts = Array.from(new Set(
+                allEntities
+                    .map(e => e.text.trim())
+                    .filter(t => t.length > 2 && !IGNORED_WORDS.has(t.toLowerCase()))
+            ));
+            
+            const redactions: RedactionObject[] = uniqueTexts.map(text => ({
+                type: 'literal',
+                value: text
+            }));
 
-                const bbox = charOffsetToPdfCoords(
-                    entity.start,
-                    entity.end,
-                    pageData.charMap,
-                    pageData.viewport
-                )
-
-                // Skip zero-size boxes
-                if (bbox.width <= 0 || bbox.height <= 0) continue
-
-                const pdfPage = pdfDoc.getPage(entity.page! - 1)
-                // pdf-lib uses bottom-left origin; our coords are already adjusted
-                pdfPage.drawRectangle({
-                    x: bbox.x,
-                    y: bbox.y,
-                    width: bbox.width,
-                    height: bbox.height + 4, // slight padding for better coverage
-                    color: rgb(0, 0, 0),
-                })
-            }
-
-            progress.value = 90
-            const redactedBytes = await pdfDoc.save()
-            progress.value = 100
+            const previewResponse = await pdfRestService.previewRedact(file, redactions);
+            const previewBlob = await pdfRestService.getResourceBlob(previewResponse.outputId);
+            
+            progress.value = 100;
 
             return {
-                redactedBlob: new Blob([redactedBytes], { type: 'application/pdf' }),
+                redactedBlob: previewBlob,
                 entitiesSummary: summariseEntities(allEntities),
+                detectedEntities: allEntities,
+                resourceId: previewResponse.outputId
             }
         } catch (e: any) {
             error.value = e?.message ?? 'Failed to process PDF'

@@ -9,7 +9,7 @@ export const useInsightsStore = defineStore('insights', () => {
     const analysisJobStatus = ref<Record<string, 'pending' | 'running' | 'done' | 'error'>>({})
 
     async function triggerAnalysis(statementId: string): Promise<void> {
-        const job = await analysisService.run(statementId)
+        await analysisService.run(statementId)
         analysisJobStatus.value[statementId] = 'pending'
     }
 

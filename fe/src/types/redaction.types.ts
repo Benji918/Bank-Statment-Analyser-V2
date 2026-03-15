@@ -21,6 +21,8 @@ export interface RedactionJob {
 export interface RedactionResult {
     redactedBlob: Blob
     entitiesSummary: Record<string, number>
+    detectedEntities: DetectedEntity[]
+    resourceId?: string
 }
 
 export interface BoundingBox {

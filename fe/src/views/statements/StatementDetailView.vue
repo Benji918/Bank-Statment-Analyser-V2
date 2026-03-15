@@ -21,7 +21,7 @@ const statementId = route.params.id as string
 const statement = ref<Statement | null>(null)
 const isLoading = ref(true)
 
-const { status: analysisStatus, startPolling } = usePolling(
+const { startPolling } = usePolling(
   () => analysisStore.pollAnalysisStatus(statementId).then((j) => j.status),
   (s) => s === 'done' || s === 'failed'
 )

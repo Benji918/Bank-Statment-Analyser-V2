@@ -88,12 +88,19 @@ const PII_RULES: PiiRule[] = [
         pattern: /\bBVN[\s:]*\d{11}\b/gi,
         score: 0.95,
     },
-    // Physical addresses — street numbers followed by words (heuristic)
+    // Physical addresses — street numbers or common prefixes followed by words (heuristic)
     {
         type: 'ADDRESS',
-        pattern: /\b\d{1,5}\s+(?:[A-Z][a-z]+\s?){1,4}(?:Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Lane|Ln|Boulevard|Blvd|Way|Close|Crescent|Terrace|Court|Place)\b/gi,
+        pattern: /\b(?:Plot|Flat|Block|Suite|No\.?)?\s?\d{1,5}\s+(?:[A-Z][a-z0-9/,-]+\s?){1,6}(?:Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Lane|Ln|Boulevard|Blvd|Way|Close|Crescent|Terrace|Court|Place|Square|Building|Estate|Layout|Quarters|Village|Area|LGA)\b/gi,
         score: 0.80,
     },
+]
+
+// --- Financial Context Guards ---
+
+const FINANCIAL_KEYWORDS = [
+    'balance', 'amount', 'credit', 'debit', 'total', 'vat', 'tax', 'fee', 'charge', 'interest', 'payment',
+    'transfer', 'pos', 'cash', 'merchant', 'airtime', 'commission', 'withdrawal', 'deposit'
 ]
 
 // --- Contextual Name Detection ---
@@ -162,8 +169,24 @@ export function detectPii(text: string): PiiEntity[] {
                 // Skip if preceded by currency symbols or looks like money
                 const preceding = text.substring(Math.max(0, match.index - 5), match.index)
                 if (/[₦$€£#]/.test(preceding) || /[\.,]\d{2}$/.test(matchedText)) continue
+                
+                // Skip if it is surrounded by financial keywords (likely a sum or reference)
+                const windowStart = Math.max(0, match.index - 20)
+                const windowEnd = Math.min(text.length, match.index + matchedText.length + 20)
+                const windowText = text.substring(windowStart, windowEnd).toLowerCase()
+                
+                if (FINANCIAL_KEYWORDS.some(k => windowText.includes(k))) {
+                    // If it has decimals or is very short, it's likely an amount, not an account number
+                    if (matchedText.includes('.') || matchedText.includes(',') || matchedText.length < 8) continue
+                }
+
                 // Skip short digit sequences in context of dates
                 if (matchedText.length < 10) continue
+            }
+
+            // For ADDRESS, skip if it matches common transaction types (e.g. "Direct Debit")
+            if (rule.type === 'ADDRESS') {
+                 if (/Direct Debit|Standing Order|ATM Withdrawal/i.test(matchedText)) continue
             }
 
             addEntity({

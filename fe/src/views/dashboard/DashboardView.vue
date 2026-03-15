@@ -1,19 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import StatementCard from '@/components/statements/StatementCard.vue'
 import { useStatementsStore } from '@/stores/statements.store'
-import { useInsightsStore } from '@/stores/insights.store'
 
 const router = useRouter()
 const statementsStore = useStatementsStore()
-const insightsStore = useInsightsStore()
 
 onMounted(() => statementsStore.fetchStatements())
-
-const recentStatements = ref(statementsStore.statements.slice(0, 5))
 </script>
 
 <template>

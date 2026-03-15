@@ -15,6 +15,14 @@ export const statementsService = {
     async upload(file: File, metadata?: Partial<StatementUpdate>): Promise<Statement> {
         const formData = new FormData()
         formData.append('file', file)
+        if (metadata) {
+            // Add metadata to formData if provided
+            Object.entries(metadata).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    formData.append(key, String(value))
+                }
+            })
+        }
         const response = await api.post('/statements/', formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
         })
