@@ -82,12 +82,13 @@ function resetZoom() {
       </button>
     </div>
 
-    <div class="flex-1 w-full overflow-y-auto custom-scrollbar p-4">
-      <div v-if="pdfUrl" class="flex justify-center">
-        <div class="shadow-2xl bg-white ring-1 ring-gray-800">
+    <div class="flex-1 w-full overflow-auto custom-scrollbar p-8">
+      <div v-if="pdfUrl" class="flex justify-center min-w-max">
+        <div class="shadow-2xl bg-white ring-1 ring-gray-800 mx-auto transition-all duration-300">
           <VuePdfEmbed 
             :source="pdfUrl" 
             :scale="scale"
+            text-layer
             @rendered="handleDocumentRender"
           />
         </div>
