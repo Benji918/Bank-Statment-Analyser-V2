@@ -45,3 +45,35 @@ async def login(db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordReq
         "token_type": "bearer",
         "refresh_token": refresh_token
     }
+
+from app.dependencies import get_current_user
+
+from app.schemas.user import UserCreate, UserRead, Token, UserUpdate
+
+@router.get("/me", response_model=UserRead)
+async def read_users_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+@router.patch("/me", response_model=UserRead)
+async def update_user_me(
+    user_in: UserUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    if user_in.email is not None and user_in.email != current_user.email:
+        result = await db.execute(select(User).where(User.email == user_in.email))
+        user = result.scalars().first()
+        if user:
+            raise HTTPException(status_code=400, detail="Email already registered")
+        current_user.email = user_in.email
+    
+    if user_in.full_name is not None:
+        current_user.full_name = user_in.full_name
+    
+    if user_in.password is not None:
+        current_user.hashed_password = get_password_hash(user_in.password)
+    
+    db.add(current_user)
+    await db.commit()
+    await db.refresh(current_user)
+    return current_user

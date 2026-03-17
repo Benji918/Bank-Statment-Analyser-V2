@@ -16,8 +16,12 @@ const option = computed(() => getTopMerchantsOption())
 </script>
 
 <template>
-  <div class="p-6 bg-[#1a1a1a] rounded-xl border border-gray-800">
-    <h3 class="font-heading font-semibold text-white mb-4">Top Merchants</h3>
-    <VChart :option="option" autoresize style="height: 280px;" />
+  <div>
+    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+      <span class="w-2 h-2 rounded-full bg-[#0099FF]"></span> Top Transaction Counterparties
+    </h3>
+    <div class="h-[280px]">
+      <VChart :option="option" autoresize />
+    </div>
   </div>
 </template>

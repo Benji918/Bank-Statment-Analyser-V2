@@ -16,8 +16,7 @@ const option = computed(() => getSpendingByCategoryOption())
 </script>
 
 <template>
-  <div class="p-6 bg-[#1a1a1a] rounded-xl border border-gray-800">
-    <h3 class="font-heading font-semibold text-white mb-4">Spending by Category</h3>
-    <VChart :option="option" autoresize style="height: 300px;" />
+  <div class="h-[300px]">
+    <VChart :option="option" autoresize />
   </div>
 </template>

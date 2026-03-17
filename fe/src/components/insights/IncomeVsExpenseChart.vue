@@ -16,8 +16,7 @@ const option = computed(() => getIncomeVsExpenseOption())
 </script>
 
 <template>
-  <div class="p-6 bg-[#1a1a1a] rounded-xl border border-gray-800">
-    <h3 class="font-heading font-semibold text-white mb-4">Income vs Expenses</h3>
-    <VChart :option="option" autoresize style="height: 280px;" />
+  <div class="h-[280px]">
+    <VChart :option="option" autoresize />
   </div>
 </template>

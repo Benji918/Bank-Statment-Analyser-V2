@@ -47,10 +47,22 @@ const router = createRouter({
 })
 
 // Navigation guard
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
     const authStore = useAuthStore()
+    
+    // Initial profile load if token exists
+    if (authStore.accessToken && !authStore.user) {
+        try {
+            await authStore.fetchUserProfile()
+        } catch {
+            authStore.logout()
+        }
+    }
+
     if (to.meta.requiresAuth && !authStore.isAuthenticated) {
         next({ name: 'login', query: { redirect: to.fullPath } })
+    } else if ((to.name === 'login' || to.name === 'register') && authStore.isAuthenticated) {
+        next({ name: 'dashboard' })
     } else {
         next()
     }

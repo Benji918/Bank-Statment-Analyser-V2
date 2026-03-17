@@ -34,6 +34,11 @@ class UserRead(UserBase):
     class Config:
         from_attributes = True
 
+class UserUpdate(BaseModel):
+    email: EmailStr | None = None
+    full_name: str | None = None
+    password: str | None = None
+
 class Token(BaseModel):
     access_token: str
     token_type: str

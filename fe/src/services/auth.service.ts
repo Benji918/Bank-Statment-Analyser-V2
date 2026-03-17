@@ -25,4 +25,14 @@ export const authService = {
     async logout(): Promise<void> {
         await api.post('/auth/logout')
     },
+    
+    async getProfile(): Promise<AuthUser> {
+        const response = await api.get('/auth/me')
+        return response.data
+    },
+
+    async updateProfile(payload: Partial<RegisterPayload>): Promise<AuthUser> {
+        const response = await api.patch('/auth/me', payload)
+        return response.data
+    },
 }
