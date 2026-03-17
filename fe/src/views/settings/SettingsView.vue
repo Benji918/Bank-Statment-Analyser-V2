@@ -49,10 +49,9 @@ async function handleProfileUpdate() {
           <h2 class="font-heading text-3xl font-black text-slate-900 dark:text-white tracking-tight">Settings</h2>
           <p class="text-slate-500 dark:text-gray-400 text-sm font-medium mt-1">Manage your account preferences and appearance.</p>
         </header>
-
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div class="max-w-2xl">
           <!-- Main Content -->
-          <div class="lg:col-span-8 space-y-8">
+          <div class="space-y-8">
             <!-- Profile Section -->
             <section class="bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-[#1a1a1a] rounded-[2.5rem] p-8 shadow-sm">
               <h3 class="font-heading font-black text-xl text-slate-900 dark:text-white mb-6 flex items-center gap-3">
@@ -96,7 +95,7 @@ async function handleProfileUpdate() {
                   <button 
                     type="submit" 
                     :disabled="isSaving"
-                    class="h-14 px-10 bg-[#0099FF] text-white rounded-2xl font-black text-sm hover:shadow-[0_8px_25px_rgba(0,153,255,0.4)] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+                    class="h-14 px-10 bg-[#0099FF] text-white rounded-2xl font-black text-sm hover:shadow-[0_8px_25_rgba(0,153,255,0.4)] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
                   >
                     <span v-if="!isSaving">Save Changes</span>
                     <span v-else class="flex items-center gap-2">
@@ -126,40 +125,15 @@ async function handleProfileUpdate() {
                   :class="uiStore.theme === 'dark' ? 'bg-[#0099FF]' : 'bg-slate-300'"
                 >
                   <div 
-                    class="w-6 h-6 bg-white rounded-full shadow-lg transition-transform duration-300 flex items-center justify-center text-[10px]"
+                    class="w-6 h-6 bg-white rounded-full shadow-lg transition-transform duration-300 flex items-center justify-center text-[10px] font-bold"
                     :class="uiStore.theme === 'dark' ? 'translate-x-8' : 'translate-x-0'"
                   >
-                    {{ uiStore.theme === 'dark' ? '🌙' : '☀️' }}
+                    <span v-if="uiStore.theme === 'dark'">🌙</span>
+                    <span v-else>☀️</span>
                   </div>
                 </button>
               </div>
             </section>
-          </div>
-
-          <!-- Sidebar Info -->
-          <div class="lg:col-span-4 space-y-8">
-            <div class="bg-gradient-to-br from-[#0000EE] to-[#0099FF] rounded-[2.5rem] p-8 text-white shadow-xl relative overflow-hidden group">
-              <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
-              <h4 class="font-black text-2xl mb-2 tracking-tight">Pro Plan</h4>
-              <p class="text-white/80 text-sm font-medium mb-8 leading-relaxed">You're currently using the advanced suite with LLaMA 3 integration.</p>
-              
-              <div class="space-y-4">
-                <div class="flex items-center justify-between text-xs font-bold border-t border-white/20 pt-4">
-                  <span class="opacity-60">Status</span>
-                  <span class="bg-emerald-400 text-emerald-950 px-2.5 py-1 rounded-lg">Active</span>
-                </div>
-                <div class="flex items-center justify-between text-xs font-bold border-t border-white/20 pt-4">
-                  <span class="opacity-60">Expires</span>
-                  <span>Dec 2026</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="p-8 bg-white dark:bg-[#0a0a0a] border border-slate-200 dark:border-[#1a1a1a] rounded-[2.5rem] text-center">
-              <div class="w-16 h-16 bg-slate-100 dark:bg-[#111] rounded-full flex items-center justify-center text-2xl mx-auto mb-4">🛡️</div>
-              <h4 class="font-bold text-slate-900 dark:text-white mb-2">Privacy & Security</h4>
-              <p class="text-xs text-slate-500 dark:text-gray-500 leading-relaxed">Your data is redacted locally and processed via secure private LLM instances.</p>
-            </div>
           </div>
         </div>
       </main>

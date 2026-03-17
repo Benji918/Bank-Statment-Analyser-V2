@@ -33,7 +33,6 @@ function handleLogout() {
         </div>
         <div class="flex flex-col whitespace-nowrap">
           <span class="font-heading font-bold text-slate-900 dark:text-white text-base tracking-tight">IntelliBank</span>
-          <span class="text-[9px] text-[#0099FF] font-bold tracking-[0.2em] uppercase">Enterprise</span>
         </div>
       </RouterLink>
       

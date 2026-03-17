@@ -16,9 +16,10 @@ export default {
                 link: "#0099FF"
             },
             fontFamily: {
-                primary: ["Inter", "sans-serif"],
-                heading: ["GT Walsheim", "sans-serif"],
-                paragraph: ["Inter", "sans-serif"]
+                sans: ["Outfit", "sans-serif"],
+                primary: ["Outfit", "sans-serif"],
+                heading: ["Outfit", "sans-serif"],
+                paragraph: ["Outfit", "sans-serif"]
             },
             borderRadius: {
                 DEFAULT: "8px",

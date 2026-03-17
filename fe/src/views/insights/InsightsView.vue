@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
@@ -28,15 +28,27 @@ const { status: jobStatus, startPolling, isPolling } = usePolling(
 const insightData = computed(() => insightsStore.insightsByStatementId[statementId])
 
 onMounted(async () => {
-  const currentStatus = insightsStore.analysisJobStatus[statementId]
-  if (currentStatus === 'done' || insightData.value) {
+  if (insightData.value) return // Already loaded
+  
+  try {
+    const currentStatus = await insightsStore.pollAnalysisStatus(statementId)
+    if (currentStatus === 'done') {
+      await insightsStore.fetchInsights(statementId)
+    } else if (currentStatus !== 'error') {
+      startPolling()
+    }
+  } catch (err) {
+    uiStore.showToast('Failed to fetch status or insights', 'error')
+  }
+})
+
+watch(jobStatus, async (newStatus) => {
+  if (newStatus === 'done' && !insightData.value) {
     try {
       await insightsStore.fetchInsights(statementId)
     } catch {
       uiStore.showToast('Failed to load insights', 'error')
     }
-  } else {
-    startPolling()
   }
 })
 </script>
@@ -73,7 +85,7 @@ onMounted(async () => {
           </div>
           <h3 class="text-slate-900 dark:text-white font-heading text-xl font-bold mb-2">Generating AI insights…</h3>
           <p class="text-slate-500 dark:text-gray-400 text-sm max-w-xs text-center">
-            Our LLaMA 3 engine is processing your transactions to identify patterns.
+            Our AI engine is processing your transactions to identify patterns.
           </p>
         </div>
 

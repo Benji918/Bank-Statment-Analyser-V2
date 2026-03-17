@@ -4,17 +4,16 @@ defineProps<{ data: InsightData }>()
 </script>
 
 <template>
-  <div class="p-6 bg-[#1a1a1a] rounded-xl border border-gray-800">
-    <h3 class="font-heading font-semibold text-white mb-4">💡 Actionable Insights</h3>
-    <div v-if="data.actionable_insights.length === 0" class="text-gray-400 text-sm">No recommendations available.</div>
+  <div>
+    <div v-if="data.actionable_insights.length === 0" class="text-white/70 text-sm italic">No recommendations available.</div>
     <ul class="space-y-3">
       <li
         v-for="(insight, i) in data.actionable_insights"
         :key="i"
-        class="flex gap-3 p-3 bg-accent/5 border border-accent/20 rounded-lg hover:border-accent/40 transition-colors"
+        class="flex gap-4 p-4 bg-white/10 border border-white/20 rounded-2xl hover:bg-white/20 transition-colors backdrop-blur-sm"
       >
-        <span class="text-accent text-lg flex-shrink-0">→</span>
-        <p class="text-gray-300 text-sm leading-relaxed">{{ insight }}</p>
+        <span class="text-white font-black text-lg flex-shrink-0 mt-0.5">→</span>
+        <p class="text-white text-sm leading-relaxed font-medium">{{ insight }}</p>
       </li>
     </ul>
   </div>
