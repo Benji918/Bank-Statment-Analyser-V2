@@ -6,15 +6,18 @@ import AppHeader from '@/components/layout/AppHeader.vue'
 import StatementStatusBadge from '@/components/statements/StatementStatusBadge.vue'
 import StatementTagBadge from '@/components/statements/StatementTagBadge.vue'
 import { statementsService } from '@/services/statements.service'
+import { useStatementsStore } from '@/stores/statements.store'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { usePolling } from '@/composables/usePolling'
 import { useUiStore } from '@/stores/ui.store'
 import type { Statement } from '@/types/statement.types'
 import { formatDate, formatFileSize } from '@/utils/formatters'
+import ConfirmDeleteModal from '@/components/statements/ConfirmDeleteModal.vue'
 
 const route = useRoute()
 const router = useRouter()
 const analysisStore = useAnalysisStore()
+const statementsStore = useStatementsStore()
 const uiStore = useUiStore()
 
 const statementId = route.params.id as string
@@ -49,10 +52,24 @@ async function runAnalysis() {
 function viewInsights() {
   router.push(`/statements/${statementId}/insights`)
 }
+
+const showDeleteModal = ref(false)
+
+async function confirmDelete() {
+  try {
+    await statementsStore.deleteStatement(statementId)
+    uiStore.showToast('Statement deleted', 'success')
+    router.push('/statements')
+  } catch {
+    uiStore.showToast('Failed to delete statement', 'error')
+  } finally {
+    showDeleteModal.value = false
+  }
+}
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-black">
+  <div class="flex min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500">
     <AppSidebar />
     <div class="flex-1 ml-60 flex flex-col">
       <AppHeader />
@@ -115,9 +132,25 @@ function viewInsights() {
             >
               ✕ Processing failed. Please try re-uploading your statement.
             </div>
+
+            <!-- Delete Button -->
+            <button
+              @click="showDeleteModal = true"
+              class="w-full py-3 bg-transparent border border-red-500/30 text-red-500 hover:bg-red-500/10 rounded-full font-semibold transition-colors mt-4"
+            >
+              Delete Statement
+            </button>
           </div>
         </template>
       </main>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <ConfirmDeleteModal 
+      :is-open="showDeleteModal"
+      :filename="statement?.filename"
+      @close="showDeleteModal = false"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>

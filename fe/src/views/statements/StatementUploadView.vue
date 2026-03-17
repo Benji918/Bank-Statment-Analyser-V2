@@ -82,7 +82,7 @@ async function onFinalUpload() {
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-black">
+  <div class="flex min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500">
     <AppSidebar />
     <div class="flex-1 ml-60 flex flex-col">
       <AppHeader />

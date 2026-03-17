@@ -96,7 +96,7 @@ function handleLogout() {
             class="flex flex-col min-w-0 transition-all duration-300"
             :class="uiStore.isSidebarCollapsed ? 'w-0 opacity-0 invisible' : 'w-full opacity-100 visible'"
           >
-            <span class="text-xs font-bold text-slate-900 dark:text-white truncate">{{ authStore.user?.full_name || 'My Account' }}</span>
+            <span class="text-xs font-bold text-slate-900 dark:text-white truncate">{{ authStore.user?.full_name?.split(' ')[0] || 'My Account' }}</span>
           </div>
           <button
             @click="handleLogout"
