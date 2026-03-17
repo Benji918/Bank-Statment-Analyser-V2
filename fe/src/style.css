@@ -2,10 +2,4 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    background-color: #000000;
-    color: #ffffff; 
-    /* Force white text instead of textPrimary #000000 from branding because the background is black */
-  }
-}
+

@@ -4,12 +4,32 @@ import { useRouter, RouterLink } from 'vue-router'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import StatementCard from '@/components/statements/StatementCard.vue'
+import ConfirmDeleteModal from '@/components/statements/ConfirmDeleteModal.vue'
 import { useStatementsStore } from '@/stores/statements.store'
 import { useUiStore } from '@/stores/ui.store'
+import { computed, ref } from 'vue'
 
 const router = useRouter()
 const statementsStore = useStatementsStore()
 const uiStore = useUiStore()
+
+const statementToDelete = ref<string | null>(null)
+const filenameToDelete = computed(() => {
+  return statementToDelete.value 
+    ? statementsStore.statements.find(s => s.id === statementToDelete.value)?.filename 
+    : ''
+})
+
+function promptDelete(id: string) {
+  statementToDelete.value = id
+}
+
+async function confirmDelete() {
+  if (statementToDelete.value) {
+    await statementsStore.deleteStatement(statementToDelete.value)
+    statementToDelete.value = null
+  }
+}
 
 onMounted(() => statementsStore.fetchStatements())
 </script>
@@ -104,10 +124,18 @@ onMounted(() => statementsStore.fetchStatements())
               :statement="s"
               class="hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
               @click="router.push(`/statements/${s.id}`)"
+              @delete-request="promptDelete"
             />
           </div>
         </div>
       </main>
     </div>
+
+    <ConfirmDeleteModal 
+      :is-open="!!statementToDelete"
+      :filename="filenameToDelete"
+      @close="statementToDelete = null"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>

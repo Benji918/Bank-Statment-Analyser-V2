@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
@@ -24,14 +24,24 @@ const statementId = route.params.id as string
 const statement = ref<Statement | null>(null)
 const isLoading = ref(true)
 
-const { startPolling } = usePolling(
+const { status: jobStatus, startPolling } = usePolling(
   () => analysisStore.pollAnalysisStatus(statementId).then((j) => j.status),
-  (s) => s === 'done' || s === 'failed'
+  (s) => s === 'done' || s === 'error' || s === 'failed'
 )
+
+watch(jobStatus, (newStatus) => {
+  if (statement.value && newStatus !== 'pending') {
+    statement.value.status = newStatus as any
+  }
+})
 
 onMounted(async () => {
   try {
     statement.value = await statementsService.get(statementId)
+    // If we land on the page and it's already analyzing, start polling automatically
+    if (statement.value.status === 'analysing' || statement.value.status === 'redacting') {
+      startPolling()
+    }
   } catch {
     uiStore.showToast('Failed to load statement', 'error')
   } finally {
@@ -42,6 +52,9 @@ onMounted(async () => {
 async function runAnalysis() {
   try {
     await analysisStore.triggerAnalysis(statementId)
+    if (statement.value) {
+      statement.value.status = 'analysing'
+    }
     uiStore.showToast('Analysis started', 'info')
     startPolling()
   } catch {

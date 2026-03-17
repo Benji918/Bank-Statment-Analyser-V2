@@ -6,13 +6,14 @@ import StatementTagBadge from './StatementTagBadge.vue'
 import { useStatementsStore } from '@/stores/statements.store'
 
 defineProps<{ statement: Statement }>()
-const emit = defineEmits<{ (e: 'click', id: string): void }>()
+const emit = defineEmits<{ 
+  (e: 'click', id: string): void 
+  (e: 'delete-request', id: string): void
+}>()
 const store = useStatementsStore()
 
-const onDelete = async (id: string) => {
-  if (confirm('Are you sure you want to delete this statement?')) {
-    await store.deleteStatement(id)
-  }
+const onDelete = (id: string) => {
+  emit('delete-request', id)
 }
 
 const onRetry = async (id: string) => {

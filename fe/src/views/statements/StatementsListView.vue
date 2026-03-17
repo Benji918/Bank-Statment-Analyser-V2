@@ -5,6 +5,7 @@ import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import StatementCard from '@/components/statements/StatementCard.vue'
 import StatementFilterBar from '@/components/statements/StatementFilterBar.vue'
+import ConfirmDeleteModal from '@/components/statements/ConfirmDeleteModal.vue'
 import { useStatementsStore } from '@/stores/statements.store'
 import { useUiStore } from '@/stores/ui.store'
 
@@ -14,6 +15,13 @@ const uiStore = useUiStore()
 
 const filterTag = ref('')
 const filterStatus = ref('')
+
+const statementToDelete = ref<string | null>(null)
+const filenameToDelete = computed(() => {
+  return statementToDelete.value 
+    ? store.statements.find(s => s.id === statementToDelete.value)?.filename 
+    : ''
+})
 
 onMounted(() => store.fetchStatements())
 
@@ -28,6 +36,17 @@ const filtered = computed(() =>
 function clearFilters() {
   filterTag.value = ''
   filterStatus.value = ''
+}
+
+function promptDelete(id: string) {
+  statementToDelete.value = id
+}
+
+async function confirmDelete() {
+  if (statementToDelete.value) {
+    await store.deleteStatement(statementToDelete.value)
+    statementToDelete.value = null
+  }
 }
 </script>
 
@@ -84,9 +103,18 @@ function clearFilters() {
             :statement="s"
             class="hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
             @click="router.push(`/statements/${s.id}`)"
+            @delete-request="promptDelete"
           />
         </div>
       </main>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <ConfirmDeleteModal 
+      :is-open="!!statementToDelete"
+      :filename="filenameToDelete"
+      @close="statementToDelete = null"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
