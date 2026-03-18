@@ -10,14 +10,14 @@ import { useInsightCharts } from '@/composables/useInsightCharts'
 
 use([BarChart, GridComponent, TooltipComponent, CanvasRenderer])
 
-const props = defineProps<{ data: InsightData }>()
-const { getTopMerchantsOption } = useInsightCharts(props.data)
+const props = defineProps<{ data: InsightData; forcedTheme?: 'light' | 'dark' }>()
+const { getTopMerchantsOption } = useInsightCharts(props.data, props.forcedTheme)
 const option = computed(() => getTopMerchantsOption())
 </script>
 
 <template>
   <div>
-    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+    <h3 v-if="!forcedTheme" class="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
       <span class="w-2 h-2 rounded-full bg-[#0099FF]"></span> Top Transaction Counterparties
     </h3>
     <div class="h-[280px]">

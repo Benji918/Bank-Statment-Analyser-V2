@@ -10,8 +10,8 @@ import { useInsightCharts } from '@/composables/useInsightCharts'
 
 use([BarChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer])
 
-const props = defineProps<{ data: InsightData }>()
-const { getIncomeVsExpenseOption } = useInsightCharts(props.data)
+const props = defineProps<{ data: InsightData; forcedTheme?: 'light' | 'dark' }>()
+const { getIncomeVsExpenseOption } = useInsightCharts(props.data, props.forcedTheme)
 const option = computed(() => getIncomeVsExpenseOption())
 </script>
 

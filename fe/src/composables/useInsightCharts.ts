@@ -1,24 +1,29 @@
 import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
+import type { ECBasicOption } from 'echarts/types/dist/shared'
 import type { InsightData } from '@/types/insight.types'
 import { useUiStore } from '@/stores/ui.store'
 
-export function useInsightCharts(data: InsightData) {
+export function useInsightCharts(data: InsightData, forcedTheme?: 'light' | 'dark') {
     const uiStore = useUiStore()
     const { theme } = storeToRefs(uiStore)
     
+    // We check forcedTheme first so we can lock the charts to light mode for PDF prints
+    const currentTheme = computed(() => forcedTheme || theme.value)
+    
     function getTextColor() {
-        return theme.value === 'dark' ? '#9CA3AF' : '#64748B'
+        return currentTheme.value === 'dark' ? '#9CA3AF' : '#64748B'
     }
 
     function getGridLineColor() {
-        return theme.value === 'dark' ? '#1F2937' : '#E2E8F0'
+        return currentTheme.value === 'dark' ? '#1F2937' : '#E2E8F0'
     }
     
     const commonTextStyle = { fontFamily: 'Outfit, sans-serif' }
     const modernTooltip = {
-        backgroundColor: theme.value === 'dark' ? 'rgba(10, 10, 10, 0.9)' : 'rgba(255, 255, 255, 0.9)',
-        borderColor: theme.value === 'dark' ? '#222' : '#E2E8F0',
-        textStyle: { ...commonTextStyle, color: theme.value === 'dark' ? '#fff' : '#000' },
+        backgroundColor: currentTheme.value === 'dark' ? 'rgba(10, 10, 10, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+        borderColor: currentTheme.value === 'dark' ? '#222' : '#E2E8F0',
+        textStyle: { ...commonTextStyle, color: currentTheme.value === 'dark' ? '#fff' : '#000' },
         borderRadius: 12,
         padding: [12, 16],
         shadowColor: 'rgba(0, 0, 0, 0.2)',
@@ -49,7 +54,7 @@ export function useInsightCharts(data: InsightData) {
                     avoidLabelOverlap: false,
                     itemStyle: { 
                         borderRadius: 8, 
-                        borderColor: theme.value === 'dark' ? '#0a0a0a' : '#ffffff', 
+                        borderColor: currentTheme.value === 'dark' ? '#0a0a0a' : '#ffffff', 
                         borderWidth: 3 
                     },
                     label: { show: false },
@@ -67,7 +72,7 @@ export function useInsightCharts(data: InsightData) {
             ],
             backgroundColor: 'transparent',
             animationDuration: 1500,
-        }
+        } as ECBasicOption
     }
 
     function getIncomeVsExpenseOption() {
@@ -112,8 +117,8 @@ export function useInsightCharts(data: InsightData) {
             ],
             backgroundColor: 'transparent',
             animationDuration: 1500,
-            animationEasing: 'backOut',
-        }
+            animationEasing: 'cubicOut',
+        } as any
     }
 
     function getTopMerchantsOption() {
@@ -147,8 +152,8 @@ export function useInsightCharts(data: InsightData) {
             ],
             backgroundColor: 'transparent',
             animationDuration: 1500,
-            animationEasing: 'quinticOut',
-        }
+            animationEasing: 'cubicOut',
+        } as any
     }
 
     return { getSpendingByCategoryOption, getIncomeVsExpenseOption, getTopMerchantsOption }

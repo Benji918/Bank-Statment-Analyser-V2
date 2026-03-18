@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed, watch } from 'vue'
+import { onMounted, computed, watch, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
@@ -11,6 +11,7 @@ import RecurringTransactionsList from '@/components/insights/RecurringTransactio
 import ActionableInsightsList from '@/components/insights/ActionableInsightsList.vue'
 import UnusualTransactionsAlert from '@/components/insights/UnusualTransactionsAlert.vue'
 import ExportMenu from '@/components/export/ExportMenu.vue'
+import PdfReportPreviewModal from '@/components/export/PdfReportPreviewModal.vue'
 import { useInsightsStore } from '@/stores/insights.store'
 import { useUiStore } from '@/stores/ui.store'
 import { usePolling } from '@/composables/usePolling'
@@ -19,6 +20,7 @@ const route = useRoute()
 const insightsStore = useInsightsStore()
 const uiStore = useUiStore()
 const statementId = route.params.id as string
+const showPdfPreview = ref(false)
 
 const { status: jobStatus, startPolling, isPolling } = usePolling(
   () => insightsStore.pollAnalysisStatus(statementId),
@@ -62,7 +64,7 @@ watch(jobStatus, async (newStatus) => {
     >
       <AppHeader />
       <main class="flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 translate-y-0 animate-fade-in">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 translate-y-0 animate-fade-in relative z-50">
           <div>
             <h2 class="font-heading text-3xl font-black text-slate-900 dark:text-white tracking-tight">
               Financial <span class="text-[#0099FF]">Insights</span>
@@ -72,7 +74,7 @@ watch(jobStatus, async (newStatus) => {
             </p>
           </div>
           <div class="flex items-center gap-3">
-            <ExportMenu :statement-id="statementId" />
+            <ExportMenu :statement-id="statementId" @preview-pdf="showPdfPreview = true" />
           </div>
         </div>
 
@@ -149,5 +151,14 @@ watch(jobStatus, async (newStatus) => {
         </div>
       </main>
     </div>
+
+    <!-- PDF Preview Modal -->
+    <PdfReportPreviewModal
+      v-if="insightData && showPdfPreview"
+      :is-open="showPdfPreview"
+      :statement-id="statementId"
+      :insight-data="insightData"
+      @close="showPdfPreview = false"
+    />
   </div>
 </template>

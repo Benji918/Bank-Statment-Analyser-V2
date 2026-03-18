@@ -3,8 +3,9 @@ import { ref } from 'vue'
 import { useExport } from '@/composables/useExport'
 
 const props = defineProps<{ statementId: string }>()
+const emit = defineEmits<{ (e: 'preview-pdf'): void }>()
 const isOpen = ref(false)
-const { downloadPdf, downloadExcel, downloadJson } = useExport(props.statementId)
+const { downloadExcel, downloadJson } = useExport(props.statementId)
 </script>
 
 <template>
@@ -22,7 +23,7 @@ const { downloadPdf, downloadExcel, downloadJson } = useExport(props.statementId
         class="absolute right-0 mt-2 w-44 bg-[#1a1a1a] border border-gray-700 rounded-xl shadow-2xl z-30 overflow-hidden"
         @click="isOpen = false"
       >
-        <button @click="downloadPdf" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left">
+        <button @click="emit('preview-pdf'); isOpen = false" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left">
           📄 Export as PDF
         </button>
         <button @click="downloadExcel" class="w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-300 hover:bg-white/5 hover:text-white transition-colors text-left">
