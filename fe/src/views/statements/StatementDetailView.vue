@@ -24,6 +24,33 @@ const statementId = route.params.id as string
 const statement = ref<Statement | null>(null)
 const isLoading = ref(true)
 
+const wsProgress = ref(0)
+const wsMessage = ref('')
+const wsConn = ref<WebSocket | null>(null)
+
+function startWebsocket(jobId: string) {
+  if (wsConn.value) wsConn.value.close()
+  
+  const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'
+  const wsUrl = baseUrl.replace('http://', 'ws://').replace('https://', 'wss://') + `/analysis/${jobId}/ws`
+  
+  wsConn.value = new WebSocket(wsUrl)
+  wsConn.value.onmessage = (e) => {
+    try {
+      const data = JSON.parse(e.data)
+      if (data.progress !== undefined) wsProgress.value = data.progress
+      if (data.message !== undefined) wsMessage.value = data.message
+      
+      // If we see 100%, we can force success immediately instead of waiting for next poll
+      if (data.progress === 100 && statement.value) {
+        statement.value.status = 'done'
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }
+}
+
 const { status: jobStatus, startPolling } = usePolling(
   () => analysisStore.pollAnalysisStatus(statementId).then((j) => j.status),
   (s) => s === 'done' || s === 'error' || s === 'failed'
@@ -38,9 +65,11 @@ watch(jobStatus, (newStatus) => {
 onMounted(async () => {
   try {
     statement.value = await statementsService.get(statementId)
-    // If we land on the page and it's already analyzing, start polling automatically
+    // If we land on the page and it's already analyzing, setup polling and WS
     if (statement.value.status === 'analysing' || statement.value.status === 'redacting') {
       startPolling()
+      const job = await analysisStore.pollAnalysisStatus(statementId)
+      if (job?.id) startWebsocket(job.id)
     }
   } catch {
     uiStore.showToast('Failed to load statement', 'error')
@@ -51,11 +80,17 @@ onMounted(async () => {
 
 async function runAnalysis() {
   try {
-    await analysisStore.triggerAnalysis(statementId)
+    const job = await analysisStore.triggerAnalysis(statementId)
     if (statement.value) {
       statement.value.status = 'analysing'
     }
     uiStore.showToast('Analysis started', 'info')
+    
+    // Use the actual `job.id` directly if `analysisStore.triggerAnalysis` returns `AnalysisResult`
+    // but the store casts it as AnalysisJob, we access `job_id` dynamically just in case.
+    const actualJobId = (job as any).job_id || job.id
+    if (actualJobId) startWebsocket(actualJobId)
+    
     startPolling()
   } catch {
     uiStore.showToast('Failed to start analysis', 'error')
@@ -71,10 +106,9 @@ const showDeleteModal = ref(false)
 async function confirmDelete() {
   try {
     await statementsStore.deleteStatement(statementId)
-    uiStore.showToast('Statement deleted', 'success')
     router.push('/statements')
   } catch {
-    uiStore.showToast('Failed to delete statement', 'error')
+    // Store already handles error toasts
   } finally {
     showDeleteModal.value = false
   }
@@ -132,11 +166,26 @@ async function confirmDelete() {
 
             <div
               v-else-if="['analysing', 'redacting'].includes(statement.status)"
-              class="text-center py-6 bg-[#1a1a1a] rounded-xl border border-gray-800"
+              class="text-center py-10 px-6 bg-[#1a1a1a] rounded-[2.5rem] border border-gray-800 transition-all"
             >
-              <div class="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p class="text-white text-sm font-medium capitalize">{{ statement.status }}…</p>
-              <p class="text-gray-400 text-xs mt-1">This may take a minute. The page will update automatically.</p>
+              <div class="relative w-16 h-16 mx-auto mb-6">
+                <div class="absolute inset-0 border-4 border-gray-700 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-[#0099FF] border-t-transparent rounded-full animate-spin"></div>
+              </div>
+              
+              <h3 class="text-white text-xl font-heading font-black tracking-wide mb-2">
+                {{ wsMessage || (statement.status === 'redacting' ? 'Redacting Document...' : 'Analysing Data...') }}
+              </h3>
+              
+              <div class="max-w-md mx-auto mt-6 bg-black/50 rounded-full h-3 border border-gray-800 overflow-hidden relative">
+                <div 
+                  class="bg-gradient-to-r from-[#0000EE] to-[#0099FF] h-full rounded-full transition-all duration-700 ease-out relative" 
+                  :style="{ width: `${wsProgress || (statement.status === 'redacting' ? 20 : 0)}%` }"
+                >
+                  <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                </div>
+              </div>
+              <p class="text-gray-400 text-xs font-black uppercase tracking-widest mt-4">{{ wsProgress || (statement.status === 'redacting' ? 20 : 0) }}% COMPLETE</p>
             </div>
 
             <div

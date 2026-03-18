@@ -1,9 +1,12 @@
 import logging
 from uuid import UUID
+import json
+import asyncio
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+import redis.asyncio as aioredis
 
 from app.db.session import get_db
 from app.dependencies import get_current_active_user
@@ -72,3 +75,42 @@ async def get_analysis_status(
     if not job:
         raise NotFoundException("No analysis job found for this statement")
     return job
+
+
+@router.websocket("/{job_id}/ws")
+async def analysis_ws(websocket: WebSocket, job_id: UUID):
+    """
+    WebSocket endpoint connecting to Redis PubSub to stream task progress to UI.
+    No auth dependency here just for simplicity of the prototype (often passed via token in query).
+    """
+    await websocket.accept()
+    # Connect to Redis to listen for "job_{job_id}" channel
+    try:
+        r = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
+        pubsub = r.pubsub()
+        await pubsub.subscribe(f"job_{job_id}")
+
+        # Send initial connection success
+        await websocket.send_json({"progress": 0, "message": "Connected to analysis engine..."})
+        
+        async for message in pubsub.listen():
+            if message["type"] == "message":
+                data = json.loads(message["data"])
+                await websocket.send_json(data)
+                
+                # Close automatically when successful completion is reached
+                if data.get("progress") == 100 or str(data.get("message")).startswith("Error:"):
+                    break
+                    
+    except WebSocketDisconnect:
+        logger.info(f"Client disconnected from WS for job {job_id}")
+    except Exception as e:
+        logger.error(f"WebSocket error for job {job_id}: {e}")
+    finally:
+        try:
+            await pubsub.unsubscribe(f"job_{job_id}")
+            await r.aclose()
+        except Exception:
+            pass
+        if not websocket.client_state.name == "DISCONNECTED":
+            await websocket.close()

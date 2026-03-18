@@ -48,6 +48,7 @@ export const useStatementsStore = defineStore('statements', () => {
             useUiStore().showToast('Statement deleted', 'success')
         } catch (e: any) {
             useUiStore().showToast(e?.response?.data?.detail || 'Failed to delete statement', 'error')
+            throw e
         }
     }
 

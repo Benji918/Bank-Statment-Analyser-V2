@@ -24,6 +24,18 @@ def run_analysis(self, statement_id: str, job_id: str, ollama_model: str = None)
             from app.services.ollama_service import analyse_statement
             from app.services.insight_service import store_insight
 
+            import json
+            import redis.asyncio as aioredis
+            from app.config import settings
+
+            r = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
+
+            async def publish(progress: int, message: str):
+                try:
+                    await r.publish(f"job_{job_id}", json.dumps({"progress": progress, "message": message}))
+                except Exception as e:
+                    logger.warning(f"Failed to publish progress: {e}")
+
             result = await db.execute(select(AnalysisJob).where(AnalysisJob.id == UUID(job_id)))
             job = result.scalars().first()
             if not job:
@@ -41,14 +53,19 @@ def run_analysis(self, statement_id: str, job_id: str, ollama_model: str = None)
                 if not statement:
                     raise ValueError("Statement not found")
 
+                await publish(10, "Loading document...")
                 pdf_path = statement.redacted_path or statement.file_path
                 with open(pdf_path, "rb") as f:
                     file_bytes = f.read()
 
+                await publish(30, "Parsing PDF pages...")
                 pages = parse_pdf(file_bytes)
                 full_text = " ".join(p.full_text for p in pages)
 
+                await publish(50, "Sending data to Ollama for analysis... (This might take a while)")
                 insight_data = await analyse_statement(full_text, model_name=ollama_model)
+
+                await publish(90, "Structuring and securely saving insights...")
 
                 job.status = "done"
                 job.completed_at = datetime.datetime.utcnow()
@@ -65,6 +82,8 @@ def run_analysis(self, statement_id: str, job_id: str, ollama_model: str = None)
                     period=statement.statement_month,
                 )
 
+                await publish(100, "Done!")
+                await r.aclose()
                 return {"status": "done"}
 
             except Exception as exc:
@@ -78,6 +97,8 @@ def run_analysis(self, statement_id: str, job_id: str, ollama_model: str = None)
                     s.status = "error"
                 await db.commit()
                 logger.error(f"Analysis task failed: {exc}")
+                await publish(0, f"Error: {str(exc)}")
+                await r.aclose()
                 return {"status": "failed", "error": str(exc)}
 
     return asyncio.get_event_loop().run_until_complete(_run())
