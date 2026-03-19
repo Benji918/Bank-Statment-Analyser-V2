@@ -6,6 +6,7 @@ import type { InsightData } from '@/types/insight.types'
 import SpendingByCategoryChart from '@/components/insights/SpendingByCategoryChart.vue'
 import IncomeVsExpenseChart from '@/components/insights/IncomeVsExpenseChart.vue'
 import TopMerchantsChart from '@/components/insights/TopMerchantsChart.vue'
+import RecurringTransactionsList from '@/components/insights/RecurringTransactionsList.vue'
 
 const props = defineProps<{
   isOpen: boolean
@@ -44,16 +45,18 @@ async function confirmDownload() {
   if (!element) return
 
   const opt = {
-    margin:       0,
-    filename:     `Bank-Statement-Report.pdf`,
+    margin:       0, // We handle margins inside the element
+    filename:     `Financial-Report-${props.statementId.slice(0,8)}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
     html2canvas:  { 
-      scale: 2, 
+      scale: 2, // Scale 2 is more stable for alignment than 4
       useCORS: true,
       letterRendering: true,
       scrollX: 0,
       scrollY: 0,
-      windowWidth: 800 // Exactly matches our element width for pixel-perfect alignment
+      x: 0,
+      y: 0,
+      windowWidth: 760, // Match the element width exactly
     },
     jsPDF:        { unit: 'pt', format: 'a4', orientation: 'portrait' },
     pagebreak:    { mode: ['css', 'avoid-all'], before: '.page-break' }
@@ -81,12 +84,12 @@ async function confirmDownload() {
       </div>
       
       <!-- Preview Wrapper -->
-      <div class="w-full max-w-[900px] flex-1 overflow-auto custom-scrollbar rounded-xl shadow-2xl bg-[#0b0b0b] border border-gray-800">
-        <!-- Exact PDF Layout Element: Fixed width (800px approx A4) for html2canvas consistency -->
+      <div class="w-full max-w-[900px] flex-1 overflow-auto custom-scrollbar rounded-xl shadow-2xl bg-[#0b0b0b] border border-gray-800 flex justify-center py-8">
+        <!-- Exact PDF Layout Element: Fixed width (760px) -->
         <div 
           id="pdf-report-content" 
-          class="bg-white text-black font-sans relative" 
-          style="width: 800px; min-height: 1130px; padding: 60px; font-family: 'Outfit', sans-serif; margin: 0 auto;"
+          class="bg-white text-black font-sans relative force-light shrink-0" 
+          style="width: 760px; min-height: 1080px; padding: 50px; font-family: 'Outfit', sans-serif; box-sizing: border-box;"
         >
           <!-- Header -->
           <div class="border-b-4 border-[#0000EE]/10 pb-4 mb-6 flex justify-between items-end">
@@ -139,9 +142,16 @@ async function confirmDownload() {
           <!-- Top Merchants -->
           <div class="mb-8" style="page-break-inside: avoid;">
             <h2 class="text-lg font-black mb-4 border-b border-slate-100 pb-1 flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-[#0099FF]"></span> Transaction Distribution
+              <span class="w-2 h-2 rounded-full bg-[#0099FF]"></span> Merchant Distribution
             </h2>
-            <TopMerchantsChart :data="insightData" forced-theme="light" style="width: 100%; height: 320px;" />
+            <div style="width: 100%; height: 320px;">
+               <TopMerchantsChart :data="insightData" forced-theme="light" />
+            </div>
+          </div>
+
+          <!-- Recurring Activity -->
+          <div class="mb-10 p-8 bg-slate-50 rounded-3xl border border-slate-100" style="page-break-inside: avoid;">
+            <RecurringTransactionsList :data="insightData" />
           </div>
 
           <!-- Smart Insights -->

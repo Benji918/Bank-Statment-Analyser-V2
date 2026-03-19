@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
@@ -8,7 +8,6 @@ import StatementTagBadge from '@/components/statements/StatementTagBadge.vue'
 import { statementsService } from '@/services/statements.service'
 import { useStatementsStore } from '@/stores/statements.store'
 import { useAnalysisStore } from '@/stores/analysis.store'
-import { usePolling } from '@/composables/usePolling'
 import { useUiStore } from '@/stores/ui.store'
 import type { Statement } from '@/types/statement.types'
 import { formatDate, formatFileSize } from '@/utils/formatters'
@@ -31,7 +30,11 @@ const wsConn = ref<WebSocket | null>(null)
 function startWebsocket(jobId: string) {
   if (wsConn.value) wsConn.value.close()
   
-  const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'
+  let baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'
+  if (baseUrl.startsWith('/')) {
+    // Handle relative URLs for production
+    baseUrl = window.location.origin + baseUrl
+  }
   const wsUrl = baseUrl.replace('http://', 'ws://').replace('https://', 'wss://') + `/analysis/${jobId}/ws`
   
   wsConn.value = new WebSocket(wsUrl)
@@ -41,33 +44,38 @@ function startWebsocket(jobId: string) {
       if (data.progress !== undefined) wsProgress.value = data.progress
       if (data.message !== undefined) wsMessage.value = data.message
       
-      // If we see 100%, we can force success immediately instead of waiting for next poll
+      // If we see 100%, we force success
       if (data.progress === 100 && statement.value) {
         statement.value.status = 'done'
+      }
+      
+      // If we see an error message, update status
+      if (String(data.message || '').toLowerCase().includes('error') && statement.value) {
+        statement.value.status = 'error'
       }
     } catch {
       // ignore parse errors
     }
   }
-}
-
-const { status: jobStatus, startPolling } = usePolling(
-  () => analysisStore.pollAnalysisStatus(statementId).then((j) => j.status),
-  (s) => s === 'done' || s === 'error' || s === 'failed'
-)
-
-watch(jobStatus, (newStatus) => {
-  if (statement.value && newStatus !== 'pending') {
-    statement.value.status = newStatus as any
+  
+  wsConn.value.onclose = () => {
+    // If it closed before reaching 100, we check the final status once via HTTP
+    setTimeout(async () => {
+      if (statement.value && statement.value.status === 'analysing') {
+        const job = await analysisStore.pollAnalysisStatus(statementId)
+        if (job.status !== 'running' && job.status !== 'pending') {
+            statement.value.status = job.status === 'done' ? 'done' : 'error'
+        }
+      }
+    }, 1000)
   }
-})
+}
 
 onMounted(async () => {
   try {
     statement.value = await statementsService.get(statementId)
-    // If we land on the page and it's already analyzing, setup polling and WS
+    // If we land on the page and it's already analyzing, setup WS
     if (statement.value.status === 'analysing' || statement.value.status === 'redacting') {
-      startPolling()
       const job = await analysisStore.pollAnalysisStatus(statementId)
       if (job?.id) startWebsocket(job.id)
     }
@@ -90,11 +98,15 @@ async function runAnalysis() {
     // but the store casts it as AnalysisJob, we access `job_id` dynamically just in case.
     const actualJobId = (job as any).job_id || job.id
     if (actualJobId) startWebsocket(actualJobId)
-    
-    startPolling()
   } catch {
     uiStore.showToast('Failed to start analysis', 'error')
   }
+}
+
+async function retryAnalysis() {
+  wsProgress.value = 0
+  wsMessage.value = 'Retrying...'
+  await runAnalysis()
 }
 
 function viewInsights() {
@@ -190,9 +202,21 @@ async function confirmDelete() {
 
             <div
               v-else-if="statement.status === 'error'"
-              class="p-4 bg-red-900/20 border border-red-700/40 rounded-xl text-red-300 text-sm"
+              class="space-y-4"
             >
-              ✕ Processing failed. Please try re-uploading your statement.
+              <div class="p-6 bg-red-900/10 border border-red-500/20 rounded-2xl text-red-200">
+                <p class="font-bold flex items-center gap-2 mb-1">
+                   <span>✕</span> Document analysis failed
+                </p>
+                <p class="text-[11px] opacity-70">The AI server encountered an error processing your statement data. Please retry or re-upload.</p>
+              </div>
+              
+              <button
+                @click="retryAnalysis"
+                class="w-full py-4 bg-white text-black rounded-full font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl"
+              >
+                Retry AI Analysis
+              </button>
             </div>
 
             <!-- Delete Button -->

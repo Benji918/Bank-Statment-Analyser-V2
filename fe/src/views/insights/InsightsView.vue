@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed, watch, ref } from 'vue'
+import { onMounted, computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppHeader from '@/components/layout/AppHeader.vue'
@@ -12,45 +12,78 @@ import ActionableInsightsList from '@/components/insights/ActionableInsightsList
 import UnusualTransactionsAlert from '@/components/insights/UnusualTransactionsAlert.vue'
 import ExportMenu from '@/components/export/ExportMenu.vue'
 import PdfReportPreviewModal from '@/components/export/PdfReportPreviewModal.vue'
+import DataExportPreviewModal from '@/components/export/DataExportPreviewModal.vue'
 import { useInsightsStore } from '@/stores/insights.store'
 import { useUiStore } from '@/stores/ui.store'
-import { usePolling } from '@/composables/usePolling'
+import { useAnalysisStore } from '@/stores/analysis.store'
 
 const route = useRoute()
 const insightsStore = useInsightsStore()
+const analysisStore = useAnalysisStore()
 const uiStore = useUiStore()
 const statementId = route.params.id as string
-const showPdfPreview = ref(false)
 
-const { status: jobStatus, startPolling, isPolling } = usePolling(
-  () => insightsStore.pollAnalysisStatus(statementId),
-  (s) => s === 'done' || s === 'error'
-)
+const showPdfPreview = ref(false)
+const showDataPreview = ref(false)
+const dataPreviewType = ref<'excel' | 'json'>('json')
+
+const wsProgress = ref(0)
+const wsMessage = ref('')
+const wsConn = ref<WebSocket | null>(null)
+const status = ref<'loading' | 'error' | 'done'>('loading')
+
+function startWebsocket(jobId: string) {
+  if (wsConn.value) wsConn.value.close()
+  
+  let baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1'
+  if (baseUrl.startsWith('/')) {
+    baseUrl = window.location.origin + baseUrl
+  }
+  const wsUrl = baseUrl.replace('http://', 'ws://').replace('https://', 'wss://') + `/analysis/${jobId}/ws`
+  
+  wsConn.value = new WebSocket(wsUrl)
+  wsConn.value.onmessage = (e) => {
+    try {
+      const data = JSON.parse(e.data)
+      if (data.progress !== undefined) wsProgress.value = data.progress
+      if (data.message !== undefined) wsMessage.value = data.message
+      
+      if (data.progress === 100) {
+        status.value = 'done'
+        setTimeout(() => insightsStore.fetchInsights(statementId), 1000)
+      }
+      
+      if (String(data.message || '').toLowerCase().includes('error')) {
+        status.value = 'error'
+      }
+    } catch { /* ignore */ }
+  }
+}
 
 const insightData = computed(() => insightsStore.insightsByStatementId[statementId])
+watch(insightData, (val) => {
+  if (val) status.value = 'done'
+}, { immediate: true })
 
 onMounted(async () => {
-  if (insightData.value) return // Already loaded
+  if (insightData.value) {
+    status.value = 'done'
+    return
+  }
   
   try {
-    const currentStatus = await insightsStore.pollAnalysisStatus(statementId)
-    if (currentStatus === 'done') {
+    const job = await analysisStore.pollAnalysisStatus(statementId)
+    if (job.status === 'done') {
+      status.value = 'done'
       await insightsStore.fetchInsights(statementId)
-    } else if (currentStatus !== 'error') {
-      startPolling()
+    } else if (job.status === 'failed') {
+      status.value = 'error'
+    } else {
+      if (job.id) startWebsocket(job.id)
     }
   } catch (err) {
+    status.value = 'error'
     uiStore.showToast('Failed to fetch status or insights', 'error')
-  }
-})
-
-watch(jobStatus, async (newStatus) => {
-  if (newStatus === 'done' && !insightData.value) {
-    try {
-      await insightsStore.fetchInsights(statementId)
-    } catch {
-      uiStore.showToast('Failed to load insights', 'error')
-    }
   }
 })
 </script>
@@ -74,12 +107,17 @@ watch(jobStatus, async (newStatus) => {
             </p>
           </div>
           <div class="flex items-center gap-3">
-            <ExportMenu :statement-id="statementId" @preview-pdf="showPdfPreview = true" />
+            <ExportMenu 
+              :statement-id="statementId" 
+              @preview-pdf="showPdfPreview = true" 
+              @preview-excel="dataPreviewType = 'excel'; showDataPreview = true" 
+              @preview-json="dataPreviewType = 'json'; showDataPreview = true" 
+            />
           </div>
         </div>
 
         <!-- Loading/polling state -->
-        <div v-if="isPolling && !insightData" class="flex flex-col items-center justify-center py-32 animate-fade-in">
+        <div v-if="status === 'loading' && !insightData" class="flex flex-col items-center justify-center py-32 animate-fade-in">
           <div class="relative w-20 h-20 mb-8">
             <div class="absolute inset-0 border-4 border-[#0099FF]/20 rounded-full"></div>
             <div class="absolute inset-0 border-4 border-[#0099FF] border-t-transparent rounded-full animate-spin"></div>
@@ -92,7 +130,7 @@ watch(jobStatus, async (newStatus) => {
         </div>
 
         <!-- Error state -->
-        <div v-else-if="jobStatus === 'error' && !insightData"
+        <div v-else-if="status === 'error' && !insightData"
           class="p-8 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-3xl text-red-600 dark:text-red-400 animate-scale-up"
         >
           <div class="flex items-center gap-4">
@@ -159,6 +197,15 @@ watch(jobStatus, async (newStatus) => {
       :statement-id="statementId"
       :insight-data="insightData"
       @close="showPdfPreview = false"
+    />
+    <!-- Data Export Preview Modal (Excel/JSON) -->
+    <DataExportPreviewModal
+      v-if="insightData && showDataPreview"
+      :is-open="showDataPreview"
+      :type="dataPreviewType"
+      :statement-id="statementId"
+      :insight-data="insightData"
+      @close="showDataPreview = false"
     />
   </div>
 </template>

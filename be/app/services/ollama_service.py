@@ -50,6 +50,7 @@ async def analyse_statement(redacted_text: str, model_name: Optional[str] = None
                 {"role": "user", "content": f"Bank Statement:\n\n{redacted_text}"},
             ],
         )
+        print('Ollama is responding.....')
         raw_content: str = response["message"]["content"]
         # Strip markdown code fences if present
         clean = raw_content.strip()

@@ -114,3 +114,4 @@ async def analysis_ws(websocket: WebSocket, job_id: UUID):
             pass
         if not websocket.client_state.name == "DISCONNECTED":
             await websocket.close()
+
