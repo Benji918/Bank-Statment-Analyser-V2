@@ -6,7 +6,7 @@ import { analysisService } from '@/services/analysis.service'
 export const useAnalysisStore = defineStore('analysis', () => {
     const jobsByStatementId = ref<Record<string, AnalysisJob>>({})
 
-    async function triggerAnalysis(statementId: string, model = 'llama3'): Promise<AnalysisJob> {
+    async function triggerAnalysis(statementId: string, model = import.meta.env.VITE_OLLAMA_MODEL_DISPLAY): Promise<AnalysisJob> {
         const job = await analysisService.run(statementId, model)
         jobsByStatementId.value[statementId] = job
         return job

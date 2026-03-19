@@ -64,6 +64,7 @@ def run_analysis(self, statement_id: str, job_id: str, ollama_model: str = None)
 
                 await publish(50, "Sending data to Ollama for analysis... (This might take a while)")
                 insight_data = await analyse_statement(full_text, model_name=ollama_model)
+                print('Call to Ollama completed')
 
                 await publish(90, "Structuring and securely saving insights...")
 
