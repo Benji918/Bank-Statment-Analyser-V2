@@ -1,38 +1,40 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import LogoIcon from '@/components/layout/LogoIcon.vue'
+import RedactionIllustration from '@/components/redaction/RedactionIllustration.vue'
+import InsightIllustration from '@/components/insights/InsightIllustration.vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
-import { PieChart, BarChart, LineChart } from 'echarts/charts'
+import { PieChart, BarChart } from 'echarts/charts'
 import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 
-use([PieChart, BarChart, LineChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer])
+use([PieChart, BarChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer])
 
 const router = useRouter()
 
-// Mock chart data for landing page visuals
+// Mock data for the charts (Sleeker colors)
 const categoryOption = {
   backgroundColor: 'transparent',
-  tooltip: { trigger: 'item' },
+  tooltip: { trigger: 'item', textStyle: { fontFamily: 'Outfit' } },
   series: [
     {
       name: 'Spending',
       type: 'pie',
-      radius: ['60%', '85%'],
+      radius: ['60%', '80%'],
       avoidLabelOverlap: false,
       itemStyle: {
-        borderRadius: 10,
-        borderColor: '#000',
-        borderWidth: 2
+        borderRadius: 15,
+        borderColor: '#050505',
+        borderWidth: 4
       },
       label: { show: false },
       data: [
-        { value: 1048, name: 'Housing', itemStyle: { color: '#0000EE' } },
-        { value: 735, name: 'Food', itemStyle: { color: '#0099FF' } },
-        { value: 580, name: 'Transport', itemStyle: { color: '#33BBFF' } },
-        { value: 484, name: 'Savings', itemStyle: { color: '#66CCFF' } },
-        { value: 300, name: 'Other', itemStyle: { color: '#99DDFF' } }
+        { value: 1048, name: 'Housing', itemStyle: { color: '#0055FF' } },
+        { value: 735, name: 'Food', itemStyle: { color: '#0088FF' } },
+        { value: 580, name: 'Transport', itemStyle: { color: '#00AAFF' } },
+        { value: 484, name: 'Savings/Invest', itemStyle: { color: '#00CCFF' } },
+        { value: 300, name: 'Lifestyle', itemStyle: { color: '#66EEFF' } }
       ]
     }
   ]
@@ -40,255 +42,229 @@ const categoryOption = {
 
 const cashflowOption = {
   backgroundColor: 'transparent',
-  tooltip: { trigger: 'axis' },
-  grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+  tooltip: { trigger: 'axis', textStyle: { fontFamily: 'Outfit' } },
+  grid: { left: '5%', right: '5%', bottom: '5%', containLabel: true },
   xAxis: {
     type: 'category',
-    data: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-    axisLine: { lineStyle: { color: '#333' } }
+    data: ['JAN', 'FEB', 'MAR', 'APR', 'MAY'],
+    axisLine: { show: false },
+    axisTick: { show: false },
+    axisLabel: { color: '#555', fontSize: 10, fontWeight: 700, margin: 15 }
   },
   yAxis: {
     type: 'value',
-    splitLine: { lineStyle: { color: '#222' } },
+    splitLine: { lineStyle: { color: '#111' } },
     axisLabel: { show: false }
   },
   series: [
     {
-      name: 'Income',
+      name: 'Clean Income',
       type: 'bar',
+      barWidth: '40%',
       data: [4200, 4500, 4100, 4800, 4600],
-      itemStyle: { color: '#0099FF', borderRadius: [4, 4, 0, 0] }
+      itemStyle: { 
+        color: '#0099FF', 
+        borderRadius: [8, 8, 0, 0],
+        shadowBlur: 20,
+        shadowColor: 'rgba(0,153,255,0.2)'
+      }
     },
     {
       name: 'Expenses',
       type: 'bar',
+      barWidth: '40%',
       data: [3100, 2800, 3500, 2900, 3200],
-      itemStyle: { color: '#0000EE', borderRadius: [4, 4, 0, 0] }
+      itemStyle: { color: '#111', borderRadius: [8, 8, 0, 0], borderColor: '#222', borderWidth: 1 }
     }
   ]
 }
 </script>
 
 <template>
-  <div class="min-h-screen bg-black text-white selection:bg-[#0099FF] selection:text-white pb-20 overflow-x-hidden">
-    <!-- Navbar -->
-    <nav class="fixed top-0 left-0 right-0 z-50 px-8 py-5 flex items-center justify-between border-b border-white/5 bg-black/40 backdrop-blur-2xl">
-      <div class="flex items-center gap-3 group cursor-pointer" @click="router.push('/')">
-        <div class="w-10 h-10 p-2 bg-gradient-to-br from-[#111] to-black border border-white/10 rounded-xl flex items-center justify-center group-hover:border-[#0099FF]/50 transition-all duration-500 shadow-lg shadow-blue-900/10">
+  <div class="min-h-screen bg-black text-white font-primary selection:bg-[#0099FF] selection:text-white pb-20 overflow-x-hidden">
+    <!-- Navigation Overlay -->
+    <nav class="fixed top-0 left-0 right-0 z-[100] px-8 py-6 flex items-center justify-between border-b border-white/[0.03] bg-black/50 backdrop-blur-xl">
+      <div class="flex items-center gap-4 group cursor-pointer" @click="router.push('/')">
+        <div class="w-10 h-10 p-2.5 bg-[#0a0a0a] border border-white/10 rounded-2xl flex items-center justify-center group-hover:border-[#0099FF]/50 transition-all duration-500 shadow-2xl">
           <LogoIcon />
         </div>
-        <span class="font-heading font-extrabold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">IntelliBank</span>
+        <span class="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">IntelliBank</span>
       </div>
-      <div class="flex items-center gap-6">
-        <button @click="router.push('/login')" class="text-sm font-medium text-gray-400 hover:text-white transition-all">
-          Log in
+      
+      <div class="flex items-center gap-4">
+        <button @click="router.push('/login')" class="px-5 py-2 text-sm font-bold text-gray-500 hover:text-white transition-all">
+          LOG IN
         </button>
-        <button @click="router.push('/register')" class="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-heading font-bold bg-white text-[#0000EE] hover:bg-[#0099FF] hover:text-white transition-all transform hover:scale-105 shadow-xl shadow-blue-600/10">
-          <LogoIcon class="w-4 h-4" />
-          Get Started
+        <button @click="router.push('/register')" class="group relative px-6 py-2.5 rounded-2xl text-xs font-black tracking-widest bg-white text-black hover:bg-[#0099FF] hover:text-white transition-all duration-300 shadow-xl shadow-blue-600/10 overflow-hidden">
+          <span class="relative z-10">GET STARTED</span>
+          <div class="absolute inset-0 bg-[#0099FF] translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
         </button>
       </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative pt-48 pb-32 px-6 overflow-hidden">
-      <!-- Massive Background Atmosphere -->
-      <div class="absolute -top-1/4 left-1/2 -translate-x-1/2 w-[1200px] h-[800px] bg-[#0000EE]/10 rounded-full blur-[160px] pointer-events-none opacity-50"></div>
-      <div class="absolute top-1/2 -right-1/4 w-[600px] h-[600px] bg-[#0099FF]/5 rounded-full blur-[140px] pointer-events-none"></div>
+    <section class="relative pt-32 pb-40 px-6 overflow-hidden">
+      <!-- Ambient Lighting -->
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1400px] h-[700px] bg-[#0055FF]/10 rounded-full blur-[180px] pointer-events-none opacity-40"></div>
+      <div class="absolute -bottom-1/4 -right-1/4 w-[800px] h-[800px] bg-blue-900/10 rounded-full blur-[160px] pointer-events-none"></div>
 
-      <div class="max-w-7xl mx-auto flex flex-col items-center text-center relative z-10">
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-10 backdrop-blur-md shadow-2xl">
-          <span class="flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-[#0099FF] opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-[#0099FF]"></span>
-          </span>
-          <span class="text-[10px] font-bold text-[#0099FF] uppercase tracking-[0.2em]">Next-Gen Financial Intelligence</span>
+      <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-20 items-center relative z-10 px-6">
+        <!-- Text Content -->
+        <div class="lg:col-span-7 flex flex-col items-start text-left">
+          <!-- Badge -->
+          <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/[0.03] border border-white/10 mb-8 backdrop-blur-md shadow-2xl transform hover:scale-105 transition-transform cursor-pointer">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0099FF] opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0099FF]"></span>
+            </span>
+            <span class="text-[11px] font-black text-[#0099FF] uppercase tracking-[0.25em]">S-Tier Financial Intelligence</span>
+          </div>
+
+          <h1 class="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] mb-10">
+            AI INSIGHTS WITHOUT <br />
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#0099FF] via-white to-gray-500 uppercase italic">Sacrificing Trust.</span>
+          </h1>
+
+          <p class="text-xl text-gray-400 max-w-2xl font-medium leading-relaxed mb-12 opacity-80">
+            We utilize <span class="text-white font-bold">PDFrest technology</span> to scrub your statements before analysis. Your sensitive data is redacted to ensure your identity remains 100% private and secure.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center gap-8">
+            <button @click="router.push('/register')" class="group px-12 py-5 rounded-[2.5rem] font-black text-xl bg-white text-black hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 shadow-[0_30px_60px_-20px_rgba(255,255,255,0.15)] flex items-center gap-4 relative overflow-hidden">
+               <span class="relative z-10 uppercase tracking-widest text-xs">Analyze FOR FREE</span>
+               <svg class="w-4 h-4 relative z-10 transform group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+          </div>
         </div>
 
-        <h1 class="text-6xl md:text-8xl font-heading font-extrabold tracking-tighter leading-[0.95] mb-10 max-w-5xl">
-          AI Insights That <br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#0099FF] to-white">Shield Your Identity.</span>
-        </h1>
-
-        <p class="text-lg md:text-2xl text-gray-400 max-w-3xl font-body leading-relaxed mb-14 mx-auto">
-          IntelliBank uses advanced <strong class="text-white">PII Redaction</strong> to clean your statements before they ever touch the cloud. Gain powerful LLaMA 3 insights without exposing a single personal detail.
-        </p>
-
-        <div class="flex flex-col sm:flex-row items-center gap-6">
-          <button @click="router.push('/register')" class="px-10 py-5 rounded-full font-heading font-black text-xl bg-white text-[#0000EE] hover:bg-gray-100 transition-all hover:scale-110 active:scale-95 shadow-[0_20px_40px_-15px_rgba(255,255,255,0.2)] flex items-center gap-3">
-            Analyze for free
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-          </button>
+        <!-- Animation/Illustration -->
+        <div class="lg:col-span-5 hidden lg:block">
+           <InsightIllustration />
         </div>
       </div>
     </section>
 
-    <!-- Value Showcase: The Charts -->
-    <section class="py-32 px-6 max-w-7xl mx-auto">
-      <div class="text-center mb-24">
-        <h2 class="text-4xl md:text-6xl font-heading font-extrabold mb-6 tracking-tight">Turn raw data into clarity.</h2>
-        <p class="text-gray-400 text-lg max-w-2xl mx-auto">We transform your anonymised transactions into actionable intelligence through a lens of deep privacy.</p>
+    <!-- Interactive Redaction Demo -->
+    <section class="py-40 px-6 max-w-7xl mx-auto border-y border-white/[0.03] bg-gradient-to-b from-transparent via-blue-950/5 to-transparent">
+       <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <div>
+            <div class="inline-block px-4 py-1.5 rounded-full bg-[#0099FF]/10 text-[#0099FF] text-[10px] font-black tracking-widest uppercase mb-8">THE SHIELD ENGINE</div>
+            <h2 class="text-5xl md:text-7xl font-black mb-8 leading-tight tracking-tight">Your data, <br /><span class="text-gray-600">anonymized in real-time.</span></h2>
+            <p class="text-gray-400 text-xl leading-relaxed mb-12">
+               Our system leverages <span class="text-white font-bold">PDFrest redaction technology</span> to scrub sensitive data before your statements are ever analyzed. By identifying PII (Personally Identifiable Information) early, we ensure that only secure, anonymized data reaches our analysis pipeline.
+            </p>
+            <ul class="space-y-6">
+               <li v-for="item in ['Names & Account Numbers', 'Addresses & Locations', 'Transaction IDs & Contact Info']" :key="item" class="flex items-center gap-4 group">
+                  <div class="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#0099FF] group-hover:scale-125 transition-all">
+                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                  <span class="text-lg font-bold text-gray-300">{{ item }}</span>
+               </li>
+            </ul>
+          </div>
+          <div>
+             <RedactionIllustration />
+          </div>
+       </div>
+    </section>
+
+    <!-- Insights Showcase -->
+    <section class="py-40 px-6 max-w-7xl mx-auto">
+      <div class="text-center mb-32">
+        <h2 class="text-5xl md:text-7xl font-black mb-8 tracking-tighter">Beyond basic numbers.</h2>
+        <p class="text-gray-400 text-xl max-w-3xl mx-auto font-medium">We transform redacted transactions into clean, structured intelligence via our secure analysis pipeline.</p>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-8">
-        <!-- Feature 1: Cashflow -->
-        <div class="lg:col-span-7 p-8 bg-[#0a0a0a] border border-white/5 rounded-[2rem] relative overflow-hidden group hover:border-[#0099FF]/30 transition-all duration-700">
-          <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity">
-            <LogoIcon class="w-32 h-32" />
-          </div>
-          <div class="relative z-10">
-            <h3 class="text-2xl font-heading font-bold mb-2">Smart Cashflow Analysis</h3>
-            <p class="text-gray-500 text-sm mb-8 max-w-md">Instantly identify income patterns and spending spikes with AI-tagged transaction categories.</p>
-            <div class="h-[280px]">
-              <VChart :option="cashflowOption" autoresize />
-            </div>
-          </div>
-        </div>
-
-        <!-- Feature 2: Categories -->
-        <div class="lg:col-span-5 p-8 bg-[#0a0a0a] border border-white/5 rounded-[2rem] relative overflow-hidden group hover:border-[#0099FF]/30 transition-all duration-700">
-          <div class="relative z-10 flex flex-col h-full">
-            <h3 class="text-2xl font-heading font-bold mb-2">Spending DNA</h3>
-            <p class="text-gray-500 text-sm mb-8">A high-fidelity breakdown of where your money actually goes.</p>
-            <div class="flex-1 flex items-center justify-center">
-              <div class="w-full h-[240px]">
-                <VChart :option="categoryOption" autoresize />
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <!-- Card 1 -->
+        <div class="lg:col-span-12 p-12 bg-white/[0.02] border border-white/5 rounded-[4rem] group hover:border-[#0099FF]/40 transition-all duration-700 relative overflow-hidden backdrop-blur-sm">
+           <div class="absolute -top-40 -right-40 w-96 h-96 bg-[#0099FF]/10 rounded-full blur-[100px] pointer-events-none"></div>
+           <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+              <div>
+                 <h3 class="text-4xl font-black mb-6">Smart Flow Discovery</h3>
+                 <p class="text-gray-400 text-lg leading-relaxed mb-10 italic">"Identify recurring subscriptions, unexpected fees, and optimize your monthly burn rate without exposing your identity."</p>
+                 <div class="flex gap-4">
+                    <div class="p-4 rounded-2xl bg-white/5 border border-white/10 flex-1">
+                       <div class="text-[#0099FF] text-2xl font-black mb-1">98%</div>
+                       <div class="text-[10px] text-gray-500 uppercase font-black">AI Tag Accuracy</div>
+                    </div>
+                    <!-- <div class="p-4 rounded-2xl bg-white/5 border border-white/10 flex-1">
+                       <div class="text-[#0099FF] text-2xl font-black mb-1">0ms</div>
+                       <div class="text-[10px] text-gray-500 uppercase font-black">Local Storage</div>
+                    </div> -->
+                 </div>
               </div>
-            </div>
-            <div class="mt-6 flex gap-2 flex-wrap">
-              <span class="px-3 py-1 bg-[#0000EE]/20 text-[#0099FF] rounded-full text-[10px] font-bold uppercase tracking-wider">Housing</span>
-              <span class="px-3 py-1 bg-[#111] text-gray-500 rounded-full text-[10px] font-bold uppercase tracking-wider">Groceries</span>
-              <span class="px-3 py-1 bg-[#111] text-gray-500 rounded-full text-[10px] font-bold uppercase tracking-wider">Tech</span>
-            </div>
-          </div>
+              <div class="h-[350px]">
+                 <VChart :option="cashflowOption" autoresize />
+              </div>
+           </div>
         </div>
-      </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <!-- Metric 1 -->
-        <div class="p-8 bg-[#0a0a0a] border border-white/5 rounded-[2rem] text-center hover:bg-[#111] transition-colors">
-          <div class="text-[#0099FF] text-4xl font-heading font-black mb-2">99.8%</div>
-          <div class="text-white text-lg font-bold mb-2">Redaction Accuracy</div>
-          <p class="text-gray-500 text-xs">Proprietary logic identifies names, IBANs, and addresses locally.</p>
+        <!-- Card 2 -->
+        <div class="lg:col-span-5 p-10 bg-white/[0.02] border border-white/5 rounded-[4rem] group hover:border-[#0099FF]/40 transition-all duration-700 relative overflow-hidden">
+           <div class="relative z-10 flex flex-col h-full">
+              <h3 class="text-3xl font-black mb-8">Spending DNA</h3>
+              <div class="h-[300px] w-full">
+                 <VChart :option="categoryOption" autoresize />
+              </div>
+              <div class="mt-10 flex gap-3 flex-wrap">
+                 <span class="px-5 py-2 bg-[#0099FF]/10 text-[#0099FF] rounded-2xl text-[10px] font-black uppercase tracking-widest">Fixed Costs</span>
+                 <span class="px-5 py-2 bg-white/5 text-gray-400 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/5">Discretionary</span>
+              </div>
+           </div>
         </div>
-        <!-- Metric 2 -->
-        <div class="p-8 bg-[#0a0a0a] border border-white/5 rounded-[2rem] text-center hover:bg-[#111] transition-colors">
-          <div class="text-[#0099FF] text-4xl font-heading font-black mb-2">&lt; 30s</div>
-          <div class="text-white text-lg font-bold mb-2">AI Processing</div>
-          <p class="text-gray-500 text-xs">Ollama-powered LLaMA 3 analysis happens in near real-time.</p>
-        </div>
-        <!-- Metric 3 -->
-        <div class="p-8 bg-[#0a0a0a] border border-white/5 rounded-[2rem] text-center hover:bg-[#111] transition-colors">
-          <div class="text-[#0099FF] text-4xl font-heading font-black mb-2">100%</div>
-          <div class="text-white text-lg font-bold mb-2">Cloud Private</div>
-          <p class="text-gray-500 text-xs">Only cleaned, non-identifiable data reaches the analysis cloud.</p>
+
+        <!-- Card 3 -->
+        <div class="lg:col-span-7 p-10 bg-[#0099FF] rounded-[4rem] text-black relative flex items-center justify-center overflow-hidden">
+           <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+           <div class="relative z-10 text-center">
+              <h3 class="text-4xl md:text-5xl font-black mb-6 tracking-tight">The PDFrest <br /> Advantage.</h3>
+              <p class="text-black/70 text-lg font-bold max-w-md mx-auto mb-10">We leverage industry-leading redaction tools to ensure your privacy is never compromised during the analysis process.</p>
+              <button @click="router.push('/register')" class="px-10 py-4 bg-black text-white rounded-full font-black text-lg hover:scale-110 active:scale-95 transition-all">
+                Try Prototype
+              </button>
+           </div>
         </div>
       </div>
     </section>
 
-    <!-- How it works (Narrative) -->
-    <section class="py-32 bg-[#050505] border-y border-white/5 px-6">
-      <div class="max-w-5xl mx-auto">
-        <div class="flex flex-col md:flex-row gap-16 items-center">
-          <div class="flex-1">
-            <h2 class="text-4xl md:text-5xl font-heading font-extrabold mb-10 tracking-tight">The Privacy Journey</h2>
-            
-            <div class="space-y-12">
-              <div class="flex gap-6">
-                <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-[#111] border border-white/10 flex items-center justify-center font-heading font-bold text-[#0099FF]">1</div>
-                <div>
-                  <h4 class="text-xl font-bold mb-2">Secure Upload</h4>
-                  <p class="text-gray-400 text-sm leading-relaxed">Your statements are loaded directly into our secure staging environment, encrypted at rest immediately.</p>
-                </div>
-              </div>
-              
-              <div class="flex gap-6">
-                <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-[#0000EE] border border-[#0099FF]/50 flex items-center justify-center font-heading font-bold text-white shadow-lg shadow-blue-600/20">2</div>
-                <div>
-                  <h4 class="text-xl font-bold mb-2">PII Scrubbing (The Shield)</h4>
-                  <p class="text-gray-400 text-sm leading-relaxed">Our redaction engine scans the document for Personal Identifiable Information. Everything from your name to your account numbers is blacked out.</p>
-                </div>
-              </div>
-
-              <div class="flex gap-6">
-                <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-[#111] border border-white/10 flex items-center justify-center font-heading font-bold text-[#0099FF]">3</div>
-                <div>
-                  <h4 class="text-xl font-bold mb-2">Cloud AI Analysis</h4>
-                  <p class="text-gray-400 text-sm leading-relaxed">The <strong class="text-white">scrubbed data</strong> is sent to our Ollama Cloud. LLaMA 3 analyzes the transactions to find recurring costs, unusual spending, and more.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="flex-1 w-full max-w-md">
-            <!-- Redaction Vis -->
-            <div class="p-6 bg-black border border-white/10 rounded-3xl shadow-2xl relative overflow-hidden">
-              <div class="flex items-center gap-2 mb-4">
-                <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
-                <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-                <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
-              </div>
-              <div class="space-y-3 font-mono text-[10px]">
-                <div class="flex justify-between border-b border-white/5 pb-1">
-                  <span class="text-gray-600">TRANSACTION DATA</span>
-                  <span class="text-[#0099FF]">REDACTED STATE</span>
-                </div>
-                <div class="flex justify-between items-center bg-white/5 p-2 rounded">
-                  <span class="text-gray-400">John Doe Corp Payment</span>
-                  <span class="bg-black px-4 py-1.5 rounded border border-white/20 text-[#0099FF]">████████</span>
-                </div>
-                <div class="flex justify-between items-center bg-white/5 p-2 rounded">
-                  <span class="text-gray-400">Rent - 123 Main St, NY</span>
-                  <span class="bg-black px-4 py-1.5 rounded border border-white/20 text-[#0099FF]">████████</span>
-                </div>
-                <div class="flex justify-between items-center bg-white/5 p-2 rounded">
-                  <span class="text-gray-400">ATM Withdrawal - #8291</span>
-                  <span class="bg-black px-4 py-1.5 rounded border border-white/20 text-[#0099FF]">████████</span>
-                </div>
-                <div class="pt-4 text-center">
-                  <span class="text-[9px] text-gray-600">REDACTION COMPLETE</span>
-                </div>
-              </div>
-              <!-- Floating "Privacy" Badge -->
-              <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-[#0099FF]/10 rounded-full blur-2xl"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Footer CTA -->
-    <section class="pt-40 pb-20 px-6 text-center">
-      <div class="max-w-3xl mx-auto p-12 bg-gradient-to-br from-[#0a0a0a] to-black border border-white/10 rounded-[3rem] shadow-2xl relative overflow-hidden">
-        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5 pointer-events-none"></div>
-        <h2 class="text-4xl font-heading font-extrabold mb-8 tracking-tight">Ready for a clearer perspective?</h2>
-        <button @click="router.push('/register')" class="bg-white text-[#0000EE] px-12 py-5 rounded-full font-heading font-black text-xl hover:scale-110 active:scale-95 transition-all shadow-2xl">
-          Get Started Now
+    <!-- Final CTA -->
+    <!-- <section class="py-60 px-6 text-center">
+      <div class="max-w-5xl mx-auto p-20 bg-white/[0.02] border border-white/10 rounded-[5rem] shadow-2xl relative overflow-hidden backdrop-blur-3xl group">
+        <div class="absolute inset-0 bg-gradient-to-br from-[#0099FF]/5 via-transparent to-transparent opacity-50"></div>
+        <h2 class="text-6xl md:text-8xl font-black mb-12 tracking-tighter leading-tight relative z-10">
+          Clarity. Privacy. <br />
+          <span class="text-[#0099FF]">Everything.</span>
+        </h2>
+        <button @click="router.push('/register')" class="bg-white text-black px-16 py-7 rounded-[2.5rem] font-black text-3xl hover:bg-[#0099FF] hover:text-white hover:scale-110 active:scale-95 transition-all duration-500 shadow-2xl relative z-10">
+           BUILD YOUR PROFILE
         </button>
-        <div class="mt-8 text-xs text-gray-500 uppercase tracking-widest font-bold">Privacy Guaranteed by S-tier Redaction</div>
+        <div class="mt-12 text-[10px] text-gray-600 uppercase tracking-[0.4em] font-black relative z-10">Verified S-Tier Redaction Engine • 2026 Edition</div>
       </div>
-    </section>
+    </section> -->
 
-    <!-- Simple Footer -->
-    <footer class="mt-20 px-8 py-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-      <div class="flex items-center gap-2">
-        <LogoIcon class="w-6 h-6 grayscale opacity-40" />
-        <span class="text-gray-600 font-bold text-sm">© 2026 IntelliBank. All rights reserved.</span>
-      </div>
-      <div class="flex gap-8 text-xs text-gray-600 font-bold uppercase tracking-widest">
-        <a href="#" class="hover:text-white transition-colors">Privacy</a>
-        <a href="#" class="hover:text-white transition-colors">Security</a>
-        <a href="#" class="hover:text-white transition-colors">Github</a>
-      </div>
-    </footer>
+
   </div>
 </template>
 
 <style scoped>
-.font-heading {
-  font-family: 'GT Walsheim', sans-serif;
+/* Use the Outfit font imported in index.html */
+div, span, h1, h2, h3, h4, p, button, a {
+  font-family: 'Outfit', sans-serif;
 }
-.font-body {
-  font-family: 'Inter', sans-serif;
+
+.tracking-tighter {
+  letter-spacing: -0.05em;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
 }
 </style>
+
