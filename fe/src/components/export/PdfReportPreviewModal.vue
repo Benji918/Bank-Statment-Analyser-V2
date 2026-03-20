@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useStatementsStore } from '@/stores/statements.store'
 import type { InsightData } from '@/types/insight.types'
+import { formatCurrency } from '@/utils/formatters'
 
 import SpendingByCategoryChart from '@/components/insights/SpendingByCategoryChart.vue'
 import IncomeVsExpenseChart from '@/components/insights/IncomeVsExpenseChart.vue'
@@ -108,16 +109,16 @@ async function confirmDownload() {
           <div class="flex justify-between gap-4 mb-8">
             <div class="flex-1 bg-slate-50 border border-slate-100 p-4 rounded-xl">
               <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.1em] mb-1">Total Income</p>
-              <p class="text-2xl font-black text-emerald-600">£{{ insightData.total_income.toLocaleString() }}</p>
+              <p class="text-2xl font-black text-emerald-600">{{ formatCurrency(insightData.total_income, insightData.currency) }}</p>
             </div>
             <div class="flex-1 bg-slate-50 border border-slate-100 p-4 rounded-xl">
               <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.1em] mb-1">Total Expenses</p>
-              <p class="text-2xl font-black text-red-600">£{{ insightData.total_expenses.toLocaleString() }}</p>
+              <p class="text-2xl font-black text-red-600">{{ formatCurrency(insightData.total_expenses, insightData.currency) }}</p>
             </div>
             <div class="flex-1 bg-slate-50 border border-slate-100 p-4 rounded-xl">
               <p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.1em] mb-1">Net Balance</p>
               <p class="text-2xl font-black" :class="insightData.net_balance >= 0 ? 'text-[#0000EE]' : 'text-red-500'">
-                £{{ insightData.net_balance.toLocaleString() }}
+                {{ formatCurrency(insightData.net_balance, insightData.currency) }}
               </p>
             </div>
           </div>

@@ -23,7 +23,7 @@ defineProps<{ data: InsightData }>()
               <p class="text-slate-900 dark:text-white font-bold group-hover:text-[#0099FF] transition-colors">{{ t.description }}</p>
               <p class="text-slate-500 dark:text-gray-500 text-[10px] font-black uppercase tracking-tighter mt-0.5">{{ t.frequency }}</p>
             </div>
-            <span class="text-rose-500 dark:text-rose-400 font-black tabular-nums">-{{ formatCurrency(t.amount) }}</span>
+            <span class="text-rose-500 dark:text-rose-400 font-black tabular-nums">-{{ formatCurrency(t.amount, data.currency) }}</span>
           </div>
         </div>
       </div>
@@ -40,7 +40,7 @@ defineProps<{ data: InsightData }>()
               <p class="text-slate-900 dark:text-white font-bold group-hover:text-emerald-500 transition-colors">{{ t.description }}</p>
               <p class="text-slate-500 dark:text-gray-500 text-[10px] font-black uppercase tracking-tighter mt-0.5">{{ t.frequency }}</p>
             </div>
-            <span class="text-emerald-600 dark:text-emerald-400 font-black tabular-nums">+{{ formatCurrency(t.amount) }}</span>
+            <span class="text-emerald-600 dark:text-emerald-400 font-black tabular-nums">+{{ formatCurrency(t.amount, data.currency) }}</span>
           </div>
         </div>
       </div>

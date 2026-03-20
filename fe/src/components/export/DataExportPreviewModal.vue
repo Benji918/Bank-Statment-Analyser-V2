@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { InsightData } from '@/types/insight.types'
 import { useExport } from '@/composables/useExport'
+import { formatCurrency } from '@/utils/formatters'
 
 const props = defineProps<{
   isOpen: boolean
@@ -78,15 +79,15 @@ const handleDownload = async () => {
                     <tbody class="text-gray-300 font-medium">
                        <tr class="border-t border-white/5">
                           <td class="px-6 py-4">Total Income</td>
-                          <td class="px-6 py-4 text-emerald-500 font-bold">£{{ insightData.total_income.toLocaleString() }}</td>
+                          <td class="px-6 py-4 text-emerald-500 font-bold">{{ formatCurrency(insightData.total_income, insightData.currency) }}</td>
                        </tr>
                        <tr class="border-t border-white/5">
                           <td class="px-6 py-4">Total Expenses</td>
-                          <td class="px-6 py-4 text-red-500 font-bold">£{{ insightData.total_expenses.toLocaleString() }}</td>
+                          <td class="px-6 py-4 text-red-500 font-bold">{{ formatCurrency(insightData.total_expenses, insightData.currency) }}</td>
                        </tr>
                        <tr class="border-t border-white/5">
                           <td class="px-6 py-4">Net Balance</td>
-                          <td class="px-6 py-4 font-bold" :class="insightData.net_balance >= 0 ? 'text-blue-500' : 'text-red-500'">£{{ insightData.net_balance.toLocaleString() }}</td>
+                          <td class="px-6 py-4 font-bold" :class="insightData.net_balance >= 0 ? 'text-blue-500' : 'text-red-500'">{{ formatCurrency(insightData.net_balance, insightData.currency) }}</td>
                        </tr>
                        <tr class="border-t border-white/5">
                           <td class="px-6 py-4">Savings Rate</td>
@@ -113,7 +114,7 @@ const handleDownload = async () => {
                     <tbody class="text-gray-300 font-medium font-mono text-xs">
                        <tr v-for="(amount, category) in insightData.spending_by_category" :key="category" class="border-t border-white/5">
                           <td class="px-6 py-4">{{ category }}</td>
-                          <td class="px-6 py-4">£{{ amount.toLocaleString() }}</td>
+                          <td class="px-6 py-4">{{ formatCurrency(amount, insightData.currency) }}</td>
                        </tr>
                     </tbody>
                   </table>
@@ -138,7 +139,7 @@ const handleDownload = async () => {
                        <tr v-for="m in insightData.top_merchants" :key="m.name" class="border-t border-white/5">
                           <td class="px-6 py-4 font-black">{{ m.name }}</td>
                           <td class="px-6 py-4">{{ m.count }}</td>
-                          <td class="px-6 py-4 font-bold text-white">£{{ m.total.toLocaleString() }}</td>
+                          <td class="px-6 py-4 font-bold text-white">{{ formatCurrency(m.total, insightData.currency) }}</td>
                        </tr>
                     </tbody>
                   </table>

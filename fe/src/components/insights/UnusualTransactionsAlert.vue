@@ -23,7 +23,7 @@ defineProps<{ data: InsightData }>()
             <span class="px-2.5 py-0.5 bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-widest rounded-full truncate">{{ t.flag.replace(/_/g, ' ') }}</span>
           </div>
         </div>
-        <span class="text-amber-700 dark:text-amber-400 font-black tabular-nums border-t border-amber-200 dark:border-amber-500/20 sm:border-0 pt-2 sm:pt-0">{{ formatCurrency(t.amount) }}</span>
+        <span class="text-amber-700 dark:text-amber-400 font-black tabular-nums border-t border-amber-200 dark:border-amber-500/20 sm:border-0 pt-2 sm:pt-0">{{ formatCurrency(t.amount, data.currency) }}</span>
       </div>
     </div>
   </div>

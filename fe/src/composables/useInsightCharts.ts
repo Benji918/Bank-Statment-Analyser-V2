@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { ECBasicOption } from 'echarts/types/dist/shared'
 import type { InsightData } from '@/types/insight.types'
 import { useUiStore } from '@/stores/ui.store'
+import { formatCurrency } from '@/utils/formatters'
 
 export function useInsightCharts(data: InsightData, forcedTheme?: 'light' | 'dark') {
     const uiStore = useUiStore()
@@ -34,7 +35,13 @@ export function useInsightCharts(data: InsightData, forcedTheme?: 'light' | 'dar
         const entries = Object.entries(data.spending_by_category)
         return {
             textStyle: commonTextStyle,
-            tooltip: { ...modernTooltip, trigger: 'item', formatter: '{b}: £{c} ({d}%)' },
+            tooltip: { 
+                ...modernTooltip, 
+                trigger: 'item', 
+                formatter: (params: any) => {
+                    return `${params.name}: ${formatCurrency(params.value, data.currency)} (${params.percent}%)`
+                }
+            },
             legend: { 
                 orient: 'vertical', 
                 left: 'left', 
@@ -94,7 +101,13 @@ export function useInsightCharts(data: InsightData, forcedTheme?: 'light' | 'dar
             },
             yAxis: { 
                 type: 'value', 
-                axisLabel: { ...commonTextStyle, color: getTextColor(), formatter: '£{value}' },
+                axisLabel: { 
+                    ...commonTextStyle, 
+                    color: getTextColor(), 
+                    formatter: (value: number) => {
+                        return formatCurrency(value, data.currency).split('.00')[0]
+                    }
+                },
                 splitLine: { lineStyle: { color: getGridLineColor(), type: 'dashed' } }
             },
             series: [
@@ -129,7 +142,11 @@ export function useInsightCharts(data: InsightData, forcedTheme?: 'light' | 'dar
             grid: { left: '2%', right: '5%', bottom: '2%', top: '2%', containLabel: true },
             xAxis: { 
                 type: 'value', 
-                axisLabel: { ...commonTextStyle, color: getTextColor(), formatter: '£{value}' },
+                axisLabel: { 
+                    ...commonTextStyle, 
+                    color: getTextColor(), 
+                    formatter: (value: number) => formatCurrency(value, data.currency).split('.00')[0]
+                },
                 splitLine: { lineStyle: { color: getGridLineColor(), type: 'dashed' } }
             },
             yAxis: { 
