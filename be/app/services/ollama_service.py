@@ -9,12 +9,13 @@ logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are a financial analyst. Analyse the bank statement text provided and return ONLY a valid JSON object.
 Do not include any explanation, markdown, or extra text.
+Identify the currency being used in the bank statement (e.g., GBP, USD, EUR, NGN) and provide it in the "currency" field.
 The JSON must match this schema exactly:
 {
   "total_income": float,
   "total_expenses": float,
   "net_balance": float,
-  "currency": "GBP",
+  "currency": str,
   "spending_by_category": {"Category": float},
   "recurring_debits": [{"description": str, "amount": float, "frequency": str}],
   "recurring_credits": [{"description": str, "amount": float, "frequency": str}],
