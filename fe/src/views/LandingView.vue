@@ -120,9 +120,9 @@ const cashflowOption = {
             <span class="text-[11px] font-black text-[#0099FF] uppercase tracking-[0.25em]">S-Tier Financial Intelligence</span>
           </div>
 
-          <h1 class="text-6xl md:text-8xl font-black tracking-tighter leading-[0.85] mb-10">
+          <h1 class="text-6xl md:text-8xl font-black tracking-tighter leading-tight mb-10">
             AI INSIGHTS WITHOUT <br />
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#0099FF] via-white to-gray-500 uppercase italic">Sacrificing Trust.</span>
+            <span class="inline-block pr-4 text-transparent bg-clip-text bg-gradient-to-r from-[#0099FF] via-white to-gray-500 uppercase italic">Sacrificing Trust.</span>
           </h1>
 
           <p class="text-xl text-gray-400 max-w-2xl font-medium leading-relaxed mb-12 opacity-80">
