@@ -92,13 +92,13 @@ const cashflowOption = {
       </div>
       
       <div class="flex items-center gap-4">
-        <button @click="router.push('/login')" class="px-5 py-2 text-sm font-bold text-gray-500 hover:text-white transition-all">
+        <a href="/login" target="_blank" class="px-5 py-2 text-sm font-bold text-gray-500 hover:text-white transition-all">
           LOG IN
-        </button>
-        <button @click="router.push('/register')" class="group relative px-6 py-2.5 rounded-2xl text-xs font-black tracking-widest bg-white text-black hover:bg-[#0099FF] hover:text-white transition-all duration-300 shadow-xl shadow-blue-600/10 overflow-hidden">
+        </a>
+        <a href="/register" target="_blank" class="group relative px-6 py-2.5 rounded-2xl text-xs font-black tracking-widest bg-white text-black hover:bg-[#0099FF] hover:text-white transition-all duration-300 shadow-xl shadow-blue-600/10 overflow-hidden">
           <span class="relative z-10">GET STARTED</span>
           <div class="absolute inset-0 bg-[#0099FF] translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
-        </button>
+        </a>
       </div>
     </nav>
 
@@ -130,10 +130,10 @@ const cashflowOption = {
           </p>
 
           <div class="flex flex-col sm:flex-row items-center gap-8">
-            <button @click="router.push('/register')" class="group px-12 py-5 rounded-[2.5rem] font-black text-xl bg-white text-black hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 shadow-[0_30px_60px_-20px_rgba(255,255,255,0.15)] flex items-center gap-4 relative overflow-hidden">
+            <a href="/register" target="_blank" class="group px-12 py-5 rounded-[2.5rem] font-black text-xl bg-white text-black hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 shadow-[0_30px_60px_-20px_rgba(255,255,255,0.15)] flex items-center gap-4 relative overflow-hidden">
                <span class="relative z-10 uppercase tracking-widest text-xs">Analyze FOR FREE</span>
                <svg class="w-4 h-4 relative z-10 transform group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </button>
+            </a>
           </div>
         </div>
 
@@ -220,9 +220,9 @@ const cashflowOption = {
            <div class="relative z-10 text-center">
               <h3 class="text-4xl md:text-5xl font-black mb-6 tracking-tight">The PDFrest <br /> Advantage.</h3>
               <p class="text-black/70 text-lg font-bold max-w-md mx-auto mb-10">We leverage industry-leading redaction tools to ensure your privacy is never compromised during the analysis process.</p>
-              <button @click="router.push('/register')" class="px-10 py-4 bg-black text-white rounded-full font-black text-lg hover:scale-110 active:scale-95 transition-all">
+              <a href="/register" target="_blank" class="inline-block px-10 py-4 bg-black text-white rounded-full font-black text-lg hover:scale-110 active:scale-95 transition-all text-center">
                 Try Prototype
-              </button>
+              </a>
            </div>
         </div>
       </div>

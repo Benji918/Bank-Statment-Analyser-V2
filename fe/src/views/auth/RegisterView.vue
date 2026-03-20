@@ -70,7 +70,9 @@ const handleRegister = async () => {
         <div class="absolute inset-0 border border-white/5 rounded-2xl pointer-events-none"></div>
         
         <div class="text-center mb-10">
-          <LogoIcon class="mx-auto h-14 w-auto mb-6 drop-shadow-[0_0_15px_rgba(0,153,255,0.4)]" />
+          <RouterLink to="/" class="inline-block transition-transform hover:scale-110 active:scale-95">
+            <LogoIcon class="mx-auto h-14 w-auto mb-6 drop-shadow-[0_0_15px_rgba(0,153,255,0.4)]" />
+          </RouterLink>
           <h2 class="text-3xl font-heading font-extrabold text-white tracking-tight">
             Create an account
           </h2>
