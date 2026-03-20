@@ -46,7 +46,7 @@ const getStatusColor = (step: number) => {
 
 const getStatusText = (step: number) => {
   switch(step) {
-    case 0: return 'ANALYZING DOM'
+    case 0: return 'ANALYZING DOCUMENT'
     case 1: return 'PII DETECTED'
     case 2: return 'STRIPPING DATA'
     case 3: return 'CLEAN OUTPUT'

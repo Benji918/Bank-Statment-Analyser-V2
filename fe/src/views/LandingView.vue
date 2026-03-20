@@ -186,7 +186,7 @@ const cashflowOption = {
                  <div class="flex gap-4">
                     <div class="p-4 rounded-2xl bg-white/5 border border-white/10 flex-1">
                        <div class="text-[#0099FF] text-2xl font-black mb-1">98%</div>
-                       <div class="text-[10px] text-gray-500 uppercase font-black">AI Tag Accuracy</div>
+                       <div class="text-[10px] text-gray-500 uppercase font-black">Redaction Accuracy</div>
                     </div>
                     <!-- <div class="p-4 rounded-2xl bg-white/5 border border-white/10 flex-1">
                        <div class="text-[#0099FF] text-2xl font-black mb-1">0ms</div>
