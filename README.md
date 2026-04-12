@@ -1,5 +1,5 @@
 # Bank Statement Analyser
-
+![alt text](image.png)
 A comprehensive full-stack web application designed to automatically parse, redact, and analyse bank statement PDFs. By leveraging dual-layer personally identifiable information (PII) redaction and local AI-generated financial insights via Ollama (LLaMA 3), the platform provides secure, actionable intelligence on personal or business finances.
 
 ## 🎯 What Problem Does This Solve?
